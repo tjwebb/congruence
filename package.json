@@ -1,0 +1,39 @@
+{
+  "name": "congruence",
+  "version": "1.0.0",
+  "description": "Validate the structure of Javascript object against a defined Template",
+  "main": "congruence.js",
+  "dependencies": {
+    "underscore": "~1.5.2",
+    "chai": "~1.8.1",
+    "backbone": "~1.1.0"
+  },
+  "devDependencies": {
+    "mocha": "~1.14.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tjwebb/congruence.git"
+  },
+  "keywords": [
+    "javascript",
+    "objects",
+    "validation",
+    "congruence",
+    "mongodb",
+    "schema",
+    "template",
+    "query",
+    "nosql"
+  ],
+  "author": "Travis Webb",
+  "license": "BSD",
+  "readmeFilename": "README.md",
+  "gitHead": "c248a6350bee9c26179de279909c5408b95f0dff",
+  "bugs": {
+    "url": "https://github.com/tjwebb/congruence/issues"
+  }
+}
