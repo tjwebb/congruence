@@ -238,7 +238,8 @@ describe('underscore', function () {
   });
   describe('examples', function () {
     it('should pass README example 1', function () {
-        var validObject = {
+        // Unmatched template properties are marked with '  '
+        var object = {
             a: 3.1415926535,
             foo: {
               bar: {
@@ -248,11 +249,11 @@ describe('underscore', function () {
               }
             }
           },
-          matchingTemplate1 = {       // matches validObject
+          matchingTemplate1 = {       // matches object
             a: _.isNumber, 
-            foo: _.isObject
+            foo: _.isObject           // don't worry about foo's internal structure
           },
-          matchingTemplate2 = {       // matches validObject
+          matchingTemplate2 = {       // matches object
             a: 3.1415926535,
             foo: {
               bar: {
@@ -262,30 +263,29 @@ describe('underscore', function () {
               }
             }
           },
-          failedTemplate1 = {         // does NOT match validObject
+          failedTemplate1 = {
                                       // this template does not allow the 'a' property
             foo: {
               bar: _.isObject,
               hello: 'world'          // hello is not a supported property of 'foo'
             }
           },
-          failedTemplate2 = {         // does NOT match validObject
-            a: 3.1415926535,
-            bar: {
+          failedTemplate2 = {
+            a: _.not(_.isNumber),     // object.a = 3.14... is a number
+            bar: {                    // object structure is foo.bar, not bar.foo
               foo: {
                 b: _.isString,
                 c: _.isArray,
-                d: _.not(_.isDate)
+                d: _.isDate
               }
             }
           };
 
-        assert.isTrue(_.test(matchingTemplate1, validObject));
-        assert.isTrue(_.test(matchingTemplate2, validObject));
+        assert.isTrue(_.test(matchingTemplate1, object));
+        assert.isTrue(_.test(matchingTemplate2, object));
 
-        assert.isFalse(_.test(failedTemplate1, validObject));
-        assert.isFalse(_.test(failedTemplate2, validObject));
+        assert.isFalse(_.test(failedTemplate1, object));
+        assert.isFalse(_.test(failedTemplate2, object));
     });
-
   });
 });

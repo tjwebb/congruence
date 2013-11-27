@@ -4,6 +4,7 @@ var congruence = (function () {
   var _ = require('underscore');
 
   /**
+   * Recurse into a subtree and test each node against the template.
    * @private
    */
   function _testSubtree (template, node) {
@@ -16,9 +17,9 @@ var congruence = (function () {
     }
 
     var nodeKeys = _.keys(node),
-        templateKeys = _.keys(template),
-        keyIntersection = _.intersection(nodeKeys, templateKeys),
-        keyUnion = _.union(nodeKeys, templateKeys);
+      templateKeys = _.keys(template),
+      keyIntersection = _.intersection(nodeKeys, templateKeys),
+      keyUnion = _.union(nodeKeys, templateKeys);
 
     return (
       keyIntersection.length === keyUnion.length &&
@@ -28,6 +29,10 @@ var congruence = (function () {
     );
   }
 
+  /**
+   * Test a node against a particular predicate function or value.
+   * @private
+   */
   function _testNode (predicate, value) {
     return _.isFunction(predicate) ? predicate(value) : value === predicate;
   }
@@ -36,48 +41,37 @@ var congruence = (function () {
 
     /**
      * Returns true if an object matches a template.
+     * @public
      * @param {Object}
      * @param {Object}
-     *
-     * @example _.test({
-     *    a: 1,
-     *    foo: 'bar',
-     *    list: [1, 2, 3],
-     *    obj: {
-     *      b: 2
-     *    },
-     *    struct: {
-     *      c: 3
-     *    },
-     *    exact: 3.141592,
-     *    junk: null
-     *    wildcard: "hello" + 123
-     *  },
-     *  {
-     *    a: _.isNumber,
-     *    foo: _.isString,
-     *    list: _.isArray,
-     *    obj: _.isObject,
-     *    struct: {
-     *      c: _.isNumber
-     *    },
-     *    exact: 3.141592,
-     *    junk: _.isNull,
-     *    wildcard: _.isDefined
-     *  });
+     * @example see README
      */
     test: function(template, object) {
       return _testSubtree(template, object);
     },
 
+    /**
+     * Returns true if val is defined; false otherwise.
+     * @public
+     */
     isDefined: function (val) {
       return !_.isUndefined(val);
     },
 
+    /**
+     * Return true iff val is at once an object and not a function nor
+     * an array.
+     * @public
+     */
     isObjectStrict: function (val) {
       return _.isObject(val) && !_.isFunction(val) && !_.isArray(val);
     },
 
+    /**
+     * Negates the return value of the given function, or the given value itself
+     * if not a function.
+     * @public
+     */
     not: function (predicate) {
       if (!_.isFunction(predicate)) {
         return !predicate;
@@ -87,6 +81,5 @@ var congruence = (function () {
       };
     }
   };
-
 })();
 module.exports = congruence;

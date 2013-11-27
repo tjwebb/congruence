@@ -36,9 +36,9 @@ Validate the structure of Javascript objects using semantic templates. Written a
   template requires `foo` to be a function, but `obj.foo` is not even defined.
 
 #### 1. Examples
-  Unmatched template properties are marked with `->`
 
-        var validObject = {
+        // Unmatched template properties are marked with '->'
+        var object = {
             a: 3.1415926535,
             foo: {
               bar: {
@@ -48,11 +48,11 @@ Validate the structure of Javascript objects using semantic templates. Written a
               }
             }
           },
-          matchingTemplate1 = {       // matches validObject
+          matchingTemplate1 = {       // matches object
             a: _.isNumber, 
             foo: _.isObject           // don't worry about foo's internal structure
           },
-          matchingTemplate2 = {       // matches validObject
+          matchingTemplate2 = {       // matches object
             a: 3.1415926535,
             foo: {
               bar: {
@@ -70,21 +70,21 @@ Validate the structure of Javascript objects using semantic templates. Written a
             }
           },
           failedTemplate2 = {
-            a: 3.1415926535,
-      ->    bar: {
+      ->    a: _.not(_.isNumber),     // object.a = 3.14... is a number
+      ->    bar: {                    // object structure is foo.bar, not bar.foo
       ->      foo: {
                 b: _.isString,
                 c: _.isArray,
-      ->        d: _.not(_.isDate)
+                d: _.isDate
               }
             }
           };
 
-        assert.isTrue(_.test(matchingTemplate1, validObject));
-        assert.isTrue(_.test(matchingTemplate2, validObject));
+        assert.isTrue(_.test(matchingTemplate1, object));
+        assert.isTrue(_.test(matchingTemplate2, object));
 
-        assert.isFalse(_.test(failedTemplate1, validObject));
-        assert.isFalse(_.test(failedTemplate2, validObject));
+        assert.isFalse(_.test(failedTemplate1, object));
+        assert.isFalse(_.test(failedTemplate2, object));
 
 #### 4. Full Underscore API
 
