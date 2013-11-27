@@ -20,6 +20,20 @@ describe('congruence', function () {
 });
 
 describe('underscore', function () {
+  describe('#not', function () {
+    it('should negate the return value of a function', function () {
+      assert.isFalse(_.not(function () { return true; })());
+      assert.isFalse(_.not(function () { return 'valid'; })());
+      assert.isFalse(_.not(_.isObject({ })));
+      
+    });
+    it('should negate the value of any non-function', function () {
+      assert.isTrue(_.not(false));
+      assert.isFalse(_.not(true));
+      assert.isFalse(_.not({ hello: 'world' }));
+    });
+
+  });
   describe('#test', function () {
 
     it('should validate number type predicate', function () {
@@ -102,7 +116,7 @@ describe('underscore', function () {
       assert.isFalse(_.test(template, { }));
     });
     it('should validate structure congruence', function () {
-      var template = {
+      var template1 = {
           a: _.isNumber, 
           foo: {
             bar: {
@@ -128,7 +142,7 @@ describe('underscore', function () {
             }
           }
         };
-      assert.isTrue(_.test(template, object));
+      assert.isTrue(_.test(template1, object));
       assert.isTrue(_.test(template2, object));
       assert.isTrue(_.test(template3, object));
     });
@@ -221,5 +235,57 @@ describe('underscore', function () {
         };
       assert.isFalse(_.test(template, object));
     });
+  });
+  describe('examples', function () {
+    it('should pass README example 1', function () {
+        var validObject = {
+            a: 3.1415926535,
+            foo: {
+              bar: {
+                b: 'hello world',
+                c: [ 1, 1, 2, 3, 5, 8 ],
+                d: new Date()
+              }
+            }
+          },
+          matchingTemplate1 = {       // matches validObject
+            a: _.isNumber, 
+            foo: _.isObject
+          },
+          matchingTemplate2 = {       // matches validObject
+            a: 3.1415926535,
+            foo: {
+              bar: {
+                b: _.isString,
+                c: _.isArray,
+                d: _.not(_.isFunction)
+              }
+            }
+          },
+          failedTemplate1 = {         // does NOT match validObject
+                                      // this template does not allow the 'a' property
+            foo: {
+              bar: _.isObject,
+              hello: 'world'          // hello is not a supported property of 'foo'
+            }
+          },
+          failedTemplate2 = {         // does NOT match validObject
+            a: 3.1415926535,
+            bar: {
+              foo: {
+                b: _.isString,
+                c: _.isArray,
+                d: _.not(_.isDate)
+              }
+            }
+          };
+
+        assert.isTrue(_.test(matchingTemplate1, validObject));
+        assert.isTrue(_.test(matchingTemplate2, validObject));
+
+        assert.isFalse(_.test(failedTemplate1, validObject));
+        assert.isFalse(_.test(failedTemplate2, validObject));
+    });
+
   });
 });

@@ -63,7 +63,7 @@ var congruence = (function () {
      *    },
      *    exact: 3.141592,
      *    junk: _.isNull,
-     *    wildcard: _.identity
+     *    wildcard: _.isDefined
      *  });
      */
     test: function(template, object) {
@@ -76,6 +76,15 @@ var congruence = (function () {
 
     isObjectStrict: function (val) {
       return _.isObject(val) && !_.isFunction(val) && !_.isArray(val);
+    },
+
+    not: function (predicate) {
+      if (!_.isFunction(predicate)) {
+        return !predicate;
+      }
+      return function () {
+        return !predicate(arguments);
+      };
     }
   };
 
