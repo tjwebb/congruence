@@ -3,7 +3,7 @@ congruence
 
 [![Build Status](https://travis-ci.org/tjwebb/congruence.png?branch=master)](https://travis-ci.org/tjwebb/congruence)
 
-Validate the structure of a Javascript object against a defined Template. Writen as an underscore mixin.
+Validate the structure of Javascript objects using semantic templates. Written as an underscore mixin.
 
 #### 0. Concept
 
