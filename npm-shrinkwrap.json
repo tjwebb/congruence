@@ -1,0 +1,10 @@
+{
+  "name": "congruence",
+  "version": "1.0.3",
+  "dependencies": {
+    "underscore": {
+      "version": "1.5.2",
+      "from": "underscore@"
+    }
+  }
+}
