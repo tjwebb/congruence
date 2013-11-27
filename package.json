@@ -4,15 +4,14 @@
   "description": "Validate the structure of Javascript object against a defined Template",
   "main": "congruence.js",
   "dependencies": {
-    "underscore": "~1.5.2",
-    "chai": "~1.8.1",
-    "backbone": "~1.1.0"
+    "underscore": "~1.5.2"
   },
   "devDependencies": {
-    "mocha": "~1.14.0"
+    "mocha": "~1.14.0",
+    "chai": "~1.8.1"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha -R spec spec/"
   },
   "repository": {
     "type": "git",
