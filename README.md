@@ -86,7 +86,7 @@ Validate the structure of Javascript objects using semantic templates. Written a
         assert.isFalse(_.test(failedTemplate1, object));
         assert.isFalse(_.test(failedTemplate2, object));
 
-#### 4. Full Underscore API
+#### 2. Full Underscore API
 
 - `_.test(template, object)`
   - Test the object against the given template
@@ -121,4 +121,3 @@ Validate the structure of Javascript objects using semantic templates. Written a
 
 - `_.isObjectStrict(value)`
   - strictly check whether `value` is an object. It cannot be an array or function.
-
