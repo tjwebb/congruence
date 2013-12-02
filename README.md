@@ -15,8 +15,9 @@ Validate the structure of Javascript objects using semantic templates. Written a
       message: 'hello world'
     };
 
-  We use the built-in underscore matching functions to build a template that
-  we can validate against. Here is a template that matches `obj` above:
+  We use the built-in underscore matching functions to build a template
+  (an isometry) that we can validate against. Here is a template that matches
+  `obj` above:
 
     var matchingTemplate = {
       megahertz: _.isNumber
