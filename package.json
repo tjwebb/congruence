@@ -5,7 +5,7 @@
   "main": "congruence.js",
   "dependencies": {
     "underscore": "1.5.x",
-    "moment": "~2.4.0"
+    "moment": "2.4.x"
   },
   "devDependencies": {
     "mocha": "~1.14.0",
