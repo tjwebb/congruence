@@ -2,16 +2,22 @@ var congruence = (function () {
   'use strict';
 
   var _ = require('underscore'),
-    momemt = require('moment'),
     childrenExpr = /^children: (\d+)\+$/;
 
+  /**
+   * Parse a 'children' key to get the min children number.
+   */
   function minChildren (key) {
     var children = childrenExpr.exec(key);
     return children ? parseInt(children[1], 10) : null;
   }
 
+  /**
+   * Discerns whether this template node contains a 'children' key. If so,
+   * return it, otherwise null.
+   */
   function childrenKey (template) {
-    if (!_.isObjectStrict(template)) return null;
+    if (!isObjectStrict(template)) return null;
     var only = _.keys(template)[0];
     return minChildren(only) !== null ? only : null;
   }
@@ -40,7 +46,7 @@ var congruence = (function () {
       }
     }
 
-    if (!_.isObjectStrict(objectNode)) {
+    if (!isObjectStrict(objectNode)) {
       return _testNode(_templateNode, objectNode, errors);
     }
 
@@ -95,98 +101,107 @@ var congruence = (function () {
     return true;
   }
 
+  /**
+   * Wrap a regular expression as a congruence predicate.
+   */
   function regexAsPredicate (regex) {
     return function (value) {
       return regex.test(value);
     };
   }
 
-  return {
+  /**
+   * Returns true if an object matches a template.
+   * @public
+   * @param {Object}
+   * @param {Object}
+   * @param {Array}
+   * @example see README
+   */
+  function test (template, object, errors) {
+    return _testSubtree(_.clone(template), object, errors || [ ]);
+  }
 
-    /**
-     * Returns true if an object matches a template.
-     * @public
-     * @param {Object}
-     * @param {Object}
-     * @param {Array}
-     * @example see README
-     */
-    test: function(template, object, errors) {
-      return _testSubtree(_.clone(template), object, errors || [ ]);
-    },
+  /**
+   * Returns true if val is defined; false otherwise.
+   * @public
+   */
+  function isDefined (val) {
+    return !_.isUndefined(val);
+  }
 
-    /**
-     * Returns true if val is defined; false otherwise.
-     * @public
-     */
-    isDefined: function (val) {
-      return !_.isUndefined(val);
-    },
+  /**
+   * Returns true if val is a valid date according to the given formats.
+   * @public
+   */
+  function isValidDate (formats) {
+    return function (val) {
+      return moment(val, formats).isValid();
+    };
+  }
 
-    /**
-     * Returns true if val is a valid date according to the given formats.
-     * @public
-     */
-    isValidDate: function (formats) {
-      return function (val) {
-        return moment(val, formats).isValid();
-      };
-    },
+  /**
+   * Return true iff val is at once an object and not a function nor
+   * an array.
+   * @public
+   */
+  function isObjectStrict (val) {
+    return _.isObject(val) && !_.isFunction(val) && !_.isArray(val);
+  }
 
-    /**
-     * Return true iff val is at once an object and not a function nor
-     * an array.
-     * @public
-     */
-    isObjectStrict: function (val) {
-      return _.isObject(val) && !_.isFunction(val) && !_.isArray(val);
-    },
+  /**
+   * Negates the return value of the given function, or the given value itself
+   * if not a function.
+   * @public
+   */
+  function not (_predicate) {
+    var predicate;
 
-    /**
-     * Negates the return value of the given function, or the given value itself
-     * if not a function.
-     * @public
-     */
-    not: function (_predicate) {
-      var predicate;
-
-      if (_.isRegExp(_predicate)) {
-        predicate = regexAsPredicate(_predicate);
-      }
-      else if (!_.isFunction(_predicate)) {
-        return !_predicate;
-      }
-      else {
-        predicate = _predicate;
-      }
-      return function () {
-        return !predicate(arguments);
-      };
-    },
-
-    /**
-     * Returns true if the value is validated by any one of the provided
-     * predicate functions.
-     * @public
-     */
-    or: function (predicates) {
-      return function () {
-        return _.any(predicates, function (_predicate) {
-          var predicate;
-          if (_.isRegExp(_predicate)) {
-            predicate = regexAsPredicate(_predicate);
-          }
-          else if (!_.isFunction(_predicate)) {
-            return _predicate === arguments[0];
-          }
-          else {
-            predicate = _predicate;
-          }
-
-          return predicate(arguments);
-        });
-      };
+    if (_.isRegExp(_predicate)) {
+      predicate = regexAsPredicate(_predicate);
     }
+    else if (!_.isFunction(_predicate)) {
+      return !_predicate;
+    }
+    else {
+      predicate = _predicate;
+    }
+    return function () {
+      return !predicate(arguments);
+    };
+  }
+
+  /**
+   * Returns true if the value is validated by any one of the provided
+   * predicate functions.
+   * @public
+   */
+  function or (predicates) {
+    return function () {
+      return _.any(predicates, function (_predicate) {
+        var predicate;
+        if (_.isRegExp(_predicate)) {
+          predicate = regexAsPredicate(_predicate);
+        }
+        else if (!_.isFunction(_predicate)) {
+          return _predicate === arguments[0];
+        }
+        else {
+          predicate = _predicate;
+        }
+
+        return predicate(arguments);
+      });
+    };
+  }
+
+  return {
+    isDefined: isDefined,
+    isValidDate: isValidDate,
+    isObjectStrict: isObjectStrict,
+    or: or,
+    not: not,
+    test: test
   };
 })();
 module.exports = congruence;
