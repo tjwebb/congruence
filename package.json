@@ -4,7 +4,8 @@
   "description": "Validate the structure of Javascript objects using semantic templates. Written as an underscore mixin.",
   "main": "congruence.js",
   "dependencies": {
-    "underscore": "1.5.x"
+    "underscore": "1.5.x",
+    "moment": "~2.4.0"
   },
   "devDependencies": {
     "mocha": "~1.14.0",

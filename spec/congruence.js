@@ -1,5 +1,6 @@
 var _ = require('underscore'),
-    assert = require('chai').assert;
+  assert = require('chai').assert,
+  moment = require('moment');
 
 _.mixin(require('../congruence'));
 
@@ -389,6 +390,43 @@ describe('underscore', function () {
           }
         };
       assert.isFalse(_.test(template, object));
+    });
+  });
+  describe('#isValidDate()', function () {
+    it('should correctly validate input against given format list', function () {
+      var date1 = '12/3/2013',
+        date2 = '12/03/2013',
+        date3 = '12/3/13',
+        date4 = '31/31/2013',           // FAIL
+        date5 = new Date().valueOf(),   // FAIL
+        date6 = new Date().toString(),
+        formats = [
+          'MM/DD/YY',
+          'MM/DD/YYYY',
+          moment.defaultFormat
+        ];
+
+      assert.isTrue(_.isValidDate(formats)(date1));
+      assert.isTrue(_.isValidDate(formats)(date2));
+      assert.isTrue(_.isValidDate(formats)(date3));
+
+      assert.isFalse(_.isValidDate(formats)(date4));
+      assert.isFalse(_.isValidDate(formats)(date5));
+
+      assert.isTrue(_.isValidDate(formats)(date6));
+
+    });
+    it('should validate date type predicate', function () {
+      var template = {
+          date1: _.isValidDate([ 'MM/DD/YY' ]),
+          date2: _.isValidDate([ 'MM/DD/YYYY' ])
+        },
+        object = {
+          date1: '12/03/13',
+          date2: '12/03/2013'
+        };
+
+      assert.isTrue(_.test(template, object));
     });
   });
   describe('examples', function () {

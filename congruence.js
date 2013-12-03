@@ -2,7 +2,8 @@ var congruence = (function () {
   'use strict';
 
   var _ = require('underscore'),
-     childrenExpr = /^children: (\d+)\+$/;
+    momemt = require('moment'),
+    childrenExpr = /^children: (\d+)\+$/;
 
   function minChildren (key) {
     var children = childrenExpr.exec(key);
@@ -123,6 +124,16 @@ var congruence = (function () {
     },
 
     /**
+     * Returns true if val is a valid date according to the given formats.
+     * @public
+     */
+    isValidDate: function (formats) {
+      return function (val) {
+        return moment(val, formats).isValid();
+      };
+    },
+
+    /**
      * Return true iff val is at once an object and not a function nor
      * an array.
      * @public
@@ -156,6 +167,7 @@ var congruence = (function () {
     /**
      * Returns true if the value is validated by any one of the provided
      * predicate functions.
+     * @public
      */
     or: function (predicates) {
       return function () {
