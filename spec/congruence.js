@@ -22,20 +22,28 @@ describe('congruence', function () {
       assert.isFunction(_.or);
     });
   });
-});
 
-describe('underscore', function () {
-  describe('#not', function () {
+  describe('#or()', function () {
+    it('should return a function that returns the _.any of the given arguments', function () {
+      var or1 = _.or(_.isUndefined, _.isString, _.isFunction);
+      assert.isTrue(or1('hello'));
+      assert.isTrue(or1(function () { }));
+      assert.isTrue(or1(undefined));
+
+      assert.isFalse(or1(null));
+      assert.isFalse(or1({ }));
+    });
+  });
+  describe('#not()', function () {
     it('should negate the return value of a function', function () {
-      assert.isFalse(_.not(function () { return true; })());
-      assert.isFalse(_.not(function () { return 'valid'; })());
-      assert.isFalse(_.not(_.isObject({ })));
+      assert.isFalse(_.not(function () { return true; })(true));
+      assert.isFalse(_.not(function () { return 'valid'; })('valid'));
       
     });
     it('should negate the value of any non-function', function () {
-      assert.isTrue(_.not(false));
-      assert.isFalse(_.not(true));
-      assert.isFalse(_.not({ hello: 'world' }));
+      assert.isTrue(_.not(false)(true));
+      assert.isTrue(_.not(true)(false));
+      assert.isFalse(_.not({ hello: 'world' })({ hello: 'world' }));
     });
 
   });
@@ -43,10 +51,10 @@ describe('underscore', function () {
     describe('key expressions', function () {
       it('should interpret options array as an OR condition', function () {
         var template = {
-            attr: [
+            attr: _.or(
               { $eq:    _.isDefined },
               { EQUALS: _.isDefined }
-            ]
+            )
           },
           object1 = {   // OK
             attr: {
@@ -62,34 +70,26 @@ describe('underscore', function () {
             attr: {
               foo: 'bar'
             }
-          },
-          errors1 = [ ],
-          errors2 = [ ],
-          errors3 = [ ];
+          };
 
-        assert.isTrue(_.test(template, object1, errors1), _.pluck(errors1, 'message'));
-        assert.lengthOf(errors1, 0);
-
-        assert.isTrue(_.test(template, object2, errors2), _.pluck(errors2, 'message'));
-        assert.lengthOf(errors2, 0);
-
-        assert.isFalse(_.test(template, object3, errors3), _.pluck(errors3, 'message'));
-        assert.lengthOf(errors3, 1);
+        assert.isTrue(_.test(template, object1));
+        assert.isTrue(_.test(template, object2));
+        assert.isFalse(_.test(template, object3));
       });
-      it('should correctly handle 0+ key expression with options arrays', function () {
+      it('should correctly handle 0+ key expression', function () {
         var template = {
-            attributes: {
-              'children: 0+' : [
+            '(?)attributes': {
+              '(+)' : _.or(
                 { $eq: _.isDefined },
                 { EQUALS: _.isDefined },
                 { $lt: _.or(_.isNumber, _.isDate) },
                 { LESS_THAN: _.or(_.isNumber, _.isDate) },
                 { $gt: _.or(_.isNumber, _.isDate) },
-                { GREATER_THAN: _.or(_.isNumber, _.isDate) }
-              ]
+                { GREATER_THAN: _.or(_.isFinite, _.isDate) }
+              )
             },
-            orderby: {
-              'children: 0+': _.or(_.isNumber, /ASC/i, /DESC/i)
+            '(?)orderby': {
+              '(+)': _.or(_.isNumber, /ASC/i, /DESC/i)
             }
           },
           object1 = {   // OK
@@ -117,7 +117,7 @@ describe('underscore', function () {
             attributes: {
               amount: { $lt: 1000000000 },
               balance: { GREATHER_THAN: 0 },
-              extra: { $gt: 'hamburger' }
+              extra: { noexist: 'hamburger' }
             },
             orderby: {
               amount: -1
@@ -131,40 +131,26 @@ describe('underscore', function () {
             orderby: {
               amount: 'invalid'
             }
-          },
-          errors1 = [ ],
-          errors2 = [ ],
-          errors3 = [ ],
-          errors4 = [ ],
-          errors5 = [ ];
+          };
 
-        assert.isTrue(_.test(template, object1, errors1), JSON.stringify(errors1));
-        assert.lengthOf(errors1, 0);
-
-        assert.isTrue(_.test(template, object2, errors2), JSON.stringify(errors2));
-        assert.lengthOf(errors2, 0);
-
-        assert.isTrue(_.test(template, object3, errors3), JSON.stringify(errors3));
-        assert.lengthOf(errors3, 0);
-
-        assert.isFalse(_.test(template, object4, errors4), JSON.stringify(errors4));
-        assert.lengthOf(errors4, 1);
-
-        assert.isFalse(_.test(template, object5, errors5), JSON.stringify(errors5));
-        assert.lengthOf(errors5, 1);
+        assert.isTrue(_.test(template, object1));
+        assert.isTrue(_.test(template, object2));
+        assert.isTrue(_.test(template, object3));
+        assert.isFalse(_.test(template, object5));
+        assert.isFalse(_.test(template, object4));
       });
       it('should correctly handle 1+ key expression with options arrays', function () {
         var template = {
-            attributes: {
-              'children: 1+' : [
+            '(?)attributes': {
+              '(+)' : _.or(
                 { $eq: _.isDefined },
                 { EQUALS: _.isDefined },
                 { $lt: _.or(_.isNumber, _.isDate) },
-                { LESS_THAN: _.or(_.isNumber, _.isDate) },
-              ]
+                { LESS_THAN: _.or(_.isNumber, _.isDate) }
+              )
             },
-            orderby: {
-              'children: 0+': _.or(_.isNumber, /ASC/i, /DESC/i)
+            '(?)orderby': {
+              '(+)': _.or(_.isNumber, /ASC/i, /DESC/i)
             }
           },
           object1 = {   // OK
@@ -179,15 +165,10 @@ describe('underscore', function () {
             orderby: {
               amount: 'ASC'
             }
-          },
-          errors1 = [ ],
-          errors2 = [ ];
+          };
 
-        assert.isTrue(_.test(template, object1, errors1), JSON.stringify(errors1));
-        assert.lengthOf(errors1, 0);
-
-        assert.isFalse(_.test(template, object2, errors2), JSON.stringify(errors2));
-        assert.lengthOf(errors2, 1);
+        assert.isTrue(_.test(template, object1));
+        assert.isTrue(_.test(template, object2));
       });
     });
     it('should validate number type predicate', function () {
@@ -391,6 +372,17 @@ describe('underscore', function () {
         };
       assert.isFalse(_.test(template, object));
     });
+    it('should validate missing object key but which is allowed undefined by template', function () {
+      var template = {
+          a: _.isNumber, 
+          b: _.or(_.isUndefined, _.isNumber)
+        },
+        object = {
+          a: 1
+        };
+      assert.isTrue(_.test(template, object));
+
+    });
   });
   describe('#isValidDate()', function () {
     it('should correctly validate input against given format list', function () {
@@ -472,10 +464,9 @@ describe('underscore', function () {
                 d: _.isDate
               }
             }
-          },
-          errors1 = [ ];
+          };
 
-        assert.isTrue(_.test(matchingTemplate1, object, errors1), JSON.stringify(errors1));
+        assert.isTrue(_.test(matchingTemplate1, object));
         assert.isTrue(_.test(matchingTemplate2, object));
 
         assert.isFalse(_.test(failedTemplate1, object));
