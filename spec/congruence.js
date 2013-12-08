@@ -26,30 +26,86 @@ describe('congruence', function () {
   describe('#or()', function () {
     it('should return a function that returns the _.any of the given arguments', function () {
       var or1 = _.or(_.isUndefined, _.isString, _.isFunction);
-      assert.isTrue(or1('hello'));
-      assert.isTrue(or1(function () { }));
-      assert.isTrue(or1(undefined));
+      assert.isTrue(or1('hello', [ ]));
+      assert.isTrue(or1(function () { }, [ ]));
+      assert.isTrue(or1(undefined, [ ]));
 
-      assert.isFalse(or1(null));
-      assert.isFalse(or1({ }));
+      assert.isFalse(or1(null, [ ]));
+      assert.isFalse(or1({ }, [ ]));
     });
   });
   describe('#not()', function () {
     it('should negate the return value of a function', function () {
-      assert.isFalse(_.not(function () { return true; })(true));
-      assert.isFalse(_.not(function () { return 'valid'; })('valid'));
+      assert.isFalse(_.not(function () { return true; })(true, [ ]));
+      assert.isFalse(_.not(function () { return 'valid'; })('valid', [ ]));
       
     });
     it('should negate the value of any non-function', function () {
-      assert.isTrue(_.not(false)(true));
-      assert.isTrue(_.not(true)(false));
-      assert.isFalse(_.not({ hello: 'world' })({ hello: 'world' }));
+      assert.isTrue(_.not(false)(true, [ ]));
+      assert.isTrue(_.not(true)(false, [ ]));
+      assert.isFalse(_.not({ hello: 'world' })({ hello: 'world' }, [ ]));
     });
 
   });
-  describe('#test', function () {
+  describe('#test()', function () {
+    describe('@error[]', function () {
+      it('should report an invalid 1st argument', function () {
+        var error = [ ];
+          result = _.test(null, { a: 1 }, error);
+
+        assert.equal(error[0], '\'template\' must be a valid js object');
+      });
+      it('should report an invalid 2nd argument', function () {
+        var error = [ ];
+          result = _.test({ a: 1 }, null, error);
+
+        assert.equal(error[0], '\'object\' must be a valid js object');
+      });
+      it('should report a value inequality', function () {
+        var error = [ ];
+          result = _.test({ a: 1 }, { a: 2 }, error);
+
+        assert.equal(error[0], 'expected 1 to equal 2');
+      });
+      it('should report a predicate fail', function () {
+        var error = [ ];
+          result = _.test({ a: _.isString }, { a: 1 }, error);
+
+        assert.equal(error[0], 'isString(1) returned false');
+      });
+      it('should report a nested predicate fail (#or)', function () {
+        var error = [ ],
+          template = {
+            a: 1,
+            foo: _.or(_.isNumber, _.isDate)
+          },
+          object = {
+            a: 1,
+            foo: 'bar'
+          },
+          result = _.test(template, object, error);
+
+        assert.isTrue(_.contains(error, 'isNumber(bar) returned false'));
+        assert.isTrue(_.contains(error, 'isDate(bar) returned false'));
+      });
+      it('should report multiple errors', function () {
+        var error = [ ],
+          template = {
+            a: -1,
+            foo: _.isNumber
+          },
+          object = {
+            a: 1,
+            foo: 'bar'
+          },
+          result = _.test(template, object, error);
+
+        assert.isTrue(_.contains(error, 'expected -1 to equal 1'));
+        assert.isTrue(_.contains(error, 'isNumber(bar) returned false'));
+      });
+    });
     describe('key expressions', function () {
-      it('should interpret options array as an OR condition', function () {
+      it('should treat objects inside or() clause as templates', function () {
         var template = {
             attr: _.or(
               { $eq:    _.isDefined },
@@ -116,8 +172,7 @@ describe('congruence', function () {
           object4 = {   // FAIL
             attributes: {
               amount: { $lt: 1000000000 },
-              balance: { GREATHER_THAN: 0 },
-              extra: { noexist: 'hamburger' }
+              balance: { BETTER_THAN: 'you' },
             },
             orderby: {
               amount: -1
@@ -136,8 +191,8 @@ describe('congruence', function () {
         assert.isTrue(_.test(template, object1));
         assert.isTrue(_.test(template, object2));
         assert.isTrue(_.test(template, object3));
-        assert.isFalse(_.test(template, object5));
         assert.isFalse(_.test(template, object4));
+        assert.isFalse(_.test(template, object5));
       });
       it('should correctly handle 1+ key expression with options arrays', function () {
         var template = {
@@ -289,7 +344,6 @@ describe('congruence', function () {
       assert.isTrue(_.test(template, { a: [ ] }));
       assert.isTrue(_.test(template, { a: function () { } }));
     });
-
     it('should invalidate false list predicate', function () {
       var template = { a: _.isArray },
         object = { a: { } };
