@@ -37,104 +37,115 @@ Validate the structure of Javascript objects using semantic templates. Written a
   template requires `foo` to be a function, but `obj.foo` is not even defined.
 
 ### 1. Examples
-Unmatched template properties are marked with `->`
 #### A. Basic Usage
+- Unmatched template properties are marked with `->`
 
-        var object = {
-            a: 3.1415926535,
-            foo: {
-              bar: {
-                b: 'hello world',
-                c: [ 1, 1, 2, 3, 5, 8 ],
-                d: new Date()
+          var object = {
+              a: 3.1415926535,
+              foo: {
+                bar: {
+                  b: 'hello world',
+                  c: [ 1, 1, 2, 3, 5, 8 ],
+                  d: new Date()
+                }
               }
-            }
-          },
-          matchingTemplate1 = {       // matches object
-            a: _.isNumber, 
-            foo: _.isObject           // don't worry about foo's internal structure
-          },
-          matchingTemplate2 = {       // matches object
-            a: 3.1415926535,
-            foo: {
-              bar: {
-                b: _.isString,
-                c: _.isArray,
-                d: _.not(_.isFunction)
+            },
+            matchingTemplate1 = {       // matches object
+              a: _.isNumber, 
+              foo: _.isObject           // don't worry about foo's internal structure
+            },
+            matchingTemplate2 = {       // matches object
+              a: 3.1415926535,
+              foo: {
+                bar: {
+                  b: _.isString,
+                  c: _.isArray,
+                  d: _.not(_.isFunction)
+                }
               }
-            }
-          },
-          failedTemplate1 = {
-      ->                              // this template does not allow the 'a' property
-            foo: {
-              bar: _.isObject,
-      ->      hello: 'world'          // hello is not a supported property of 'foo'
-            }
-          },
-          failedTemplate2 = {
-      ->    a: _.not(_.isNumber),     // object.a = 3.14... is a number
-      ->    bar: {                    // object structure is foo.bar, not bar.foo
-      ->      foo: {
-                b: _.isString,
-                c: _.isArray,
-                d: _.isDate
+            },
+            failedTemplate1 = {
+        ->                              // this template does not allow the 'a' property
+              foo: {
+                bar: _.isObject,
+        ->      hello: 'world'          // hello is not a supported property of 'foo'
               }
-            }
-          };
+            },
+            failedTemplate2 = {
+        ->    a: _.not(_.isNumber),     // object.a = 3.14... is a number
+        ->    bar: {                    // object structure is foo.bar, not bar.foo
+        ->      foo: {
+                  b: _.isString,
+                  c: _.isArray,
+                  d: _.isDate
+                }
+              }
+            };
 
-        assert.isTrue(_.test(matchingTemplate1, object));
-        assert.isTrue(_.test(matchingTemplate2, object));
+          assert.isTrue(_.test(matchingTemplate1, object));
+          assert.isTrue(_.test(matchingTemplate2, object));
 
-        assert.isFalse(_.test(failedTemplate1, object));
-        assert.isFalse(_.test(failedTemplate2, object));
+          assert.isFalse(_.test(failedTemplate1, object));
+          assert.isFalse(_.test(failedTemplate2, object));
 
 #### B. Advanced Usage
 - `(?)` means "optional"
 - `(+)` means "one or more"
 
-        var template = {
-            '(?)parameters': {
-              '(+)' : _.or(
-                { $lt: _.or(_.isNumber, _.isDate) },
-                { $gt: _.or(_.isNumber, _.isDate) },
-                { $eq: _.isDefined }
-              )
+          var template = {
+              '(?)parameters': {
+                '(+)' : _.or(
+                  { $lt: _.or(_.isNumber, _.isDate) },
+                  { $gt: _.or(_.isNumber, _.isDate) },
+                  { $eq: _.isDefined }
+                )
+              },
+              '(?)orderby': {
+                '(+)': _.or(_.isNumber, /ASC/i, /DESC/i)
+              }
             },
-            '(?)orderby': {
-              '(+)': _.or(_.isNumber, /ASC/i, /DESC/i)
-            }
-          },
-          matchingObject1 = {
-            parameters: {
-              amount:   { $lt: 500 },
-              balance:  { $gt: 100 }
+            matchingObject1 = {
+              parameters: {
+                amount:   { $lt: 500 },
+                balance:  { $gt: 100 }
+              },
+              orderby: {
+                balance: 'asc'
+              }
             },
-            orderby: {
-              balance: 'asc'
-            }
-          },
-          matchingObject2 = {
-            parameters: {
-              balance:  { $eq: 1000 }
-            }
-          },
-          invalidObject = {
-            parameters: {
-      ->      amount:  { $lt: 'hello' }
+            matchingObject2 = {
+              parameters: {
+                balance:  { $eq: 1000 }
+              }
             },
-      ->    orderby: 'up'
-          },
-          errors = [ ],
-          shouldFail; 
+            invalidObject1 = {
+              parameters: {
+                amount:  { $lt: 'hello' }
+              },
+        ->    orderby: 'up'
+            },
+            invalidObject2 = {
+              parameters: {
+        ->      amount:  { crap: 'nonsense' }
+              }
+            },
+            errors1 = [ ],
+            errors2 = [ ],
+            shouldFail1,
+            shouldFail2; 
 
-        assert.isTrue(_.test(template, matchingObject1));
-        assert.isTrue(_.test(template, matchingObject2));
+          assert.isTrue(_.test(template, matchingObject1));
+          assert.isTrue(_.test(template, matchingObject2));
 
-        shouldFail = _.test(template, invalidObject, errors);
-        assert.isFalse(shouldFail);
-        assert.include(errors, 'isNumber(hello) returned false');
-        assert.include(errors, 'isDate(hello) returned false');
-        assert.include(errors, 'expected (up) to be an object');
+          shouldFail1 = _.test(template, invalidObject1, errors1);
+          assert.isFalse(shouldFail1);
+          assert.include(errors1, 'isNumber(hello) returned false');
+          assert.include(errors1, 'isDate(hello) returned false');
+          assert.include(errors1, 'expected (up) to be an object');
+
+          shouldFail2 = _.test(template, invalidObject2, errors2);
+          assert.isFalse(shouldFail2);
+          assert.include(errors2, 'no match for {"crap":"nonsense"}');
 
 ### 2. Full Underscore API
 

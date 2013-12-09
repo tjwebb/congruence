@@ -15,16 +15,21 @@ var congruence = (function () {
   function normalizeWildcard (key) {
     return key.slice().replace('(+)', '');
   }
+  function error (list, err) {
+    if (!_.contains(list, err)) {
+      list.push(err);
+    }
+  }
 
   /**
    * Recurse into a subtree and test each node against the template.
    * @private
    */
-  function _testSubtree (templateNode, objectNode, error) {
+  function _testSubtree (templateNode, objectNode, errors) {
 
     // a leaf is reached
     if (!isObjectStrict(templateNode) || !isObjectStrict(objectNode)) {
-      return _testNode(templateNode, objectNode, error);
+      return _testNode(templateNode, objectNode, errors);
     }
 
     var templateKeys = _.keys(templateNode),
@@ -33,7 +38,7 @@ var congruence = (function () {
         return (!optional(key) && _.contains(templateKeys, '(?)'+ key)) || key === '(+)';
       }),
       result = _.map(keyset, function (_key) {
-        var subtree, key, oldlen = error.length;
+        var subtree, key, oldlen = errors.length;
 
         if (optional(_key)) {
           key = normalizeOptional(_key);
@@ -45,14 +50,18 @@ var congruence = (function () {
         else {
           key = _key;
         }
-        subtree = _testSubtree(templateNode[_key], objectNode[key], error);
-        if (!subtree && _.has(templateNode, '(+)')) {
-          error.splice(-1, (error.length - oldlen));
-          return _testSubtree(templateNode['(+)'], objectNode[key], error);
+        subtree = _testSubtree(templateNode[_key], objectNode[key], errors);
+        if (!subtree) {
+          if (_.has(templateNode, '(+)')) {
+            subtree = _testSubtree(templateNode['(+)'], objectNode[key], errors);
+            errors.splice(-1, (errors.length - oldlen));
+          }
+          else {
+            return false;
+          }
         }
-        else {
-          return subtree;
-        }
+
+        return subtree;
       });
 
     return _.all(result);
@@ -62,14 +71,14 @@ var congruence = (function () {
    * Test a node against a particular predicate function or value.
    * @private
    */
-  function _testNode (predicate, value, error) {
-    return _testPredicate(predicate, value, error);
+  function _testNode (predicate, value, errors) {
+    return _testPredicate(predicate, value, errors);
   }
 
   /**
    * Test a value/predicate combo, and report any errors.
    */
-  function _testPredicate(predicate, value, error) {
+  function _testPredicate(predicate, value, errors) {
     var result = isDefined(predicate) && _.any([
       _.isRegExp(predicate) && predicate.test(value),
       _.isFunction(predicate) && predicate(value, [ ]),
@@ -78,28 +87,25 @@ var congruence = (function () {
 
     if (result) return true;
 
-    if (_.isUndefined(value) || _.isUndefined(predicate)) {
-      //error.push('predicate is not defined for value [ ' + value + ' ]');
+    if (_.isUndefined(predicate)) {
+      error(errors, 'no match for ' + JSON.stringify(value));
     }
     else if (isObjectStrict(predicate) && !isObjectStrict(value)) {
-      error.push('expected (' + value + ') to be an object');
+      error(errors, 'expected (' + value + ') to be an object');
     }
     else if (_.isRegExp(predicate) && !predicate.test(value)) {
-      error.push('expected ' + predicate + ' to match ' + value);
+      error(errors, 'expected ' + predicate + ' to match ' + value);
     }
-    else if (_.isFunction(predicate) && !predicate(value, error)) {
+    else if (_.isFunction(predicate) && !predicate(value, errors)) {
       var f = predicate.name || _.find(_.functions(_), function (name) {
         return _[name] == predicate;
       });
-      if (!_.contains([ 'or', 'not' ], f)) {
-        error.push((f || 'anonymous') + '(' + value + ') returned false');
+      if (value && !_.contains([ 'or', 'not' ], f)) {
+        error(errors, (f || 'anonymous') + '(' + value + ') returned false');
       }
     }
     else if (predicate !== value) {
-      error.push('expected (' + predicate + ') to equal ' + value);
-    }
-    else {
-      error.push('unknown error');
+      error(errors, 'expected (' + predicate + ') to equal ' + value);
     }
 
     return false;
@@ -113,17 +119,17 @@ var congruence = (function () {
    * @param {Array}
    * @example see README
    */
-  function test (template, object, _error) {
-    var error = _error || [ ];
+  function test (template, object, _errors) {
+    var errors = _errors || [ ], result;
 
     if (!isObjectStrict(object)) {
-      error.push('\'object\' must be a valid js object');
+      error(errors, '\'object\' must be a valid js object');
     }
     if (!isObjectStrict(template)) {
-      error.push('\'template\' must be a valid js object');
+      error(errors, '\'template\' must be a valid js object');
     }
 
-    return error.length === 0 && _testSubtree(_.clone(template), object, error);
+    return errors.length === 0 && _testSubtree(_.clone(template), object, errors);
   }
 
   /**
@@ -159,13 +165,9 @@ var congruence = (function () {
    * @public
    */
   function not (predicate) {
-    return function (value, error) {
-      var a = error.length,
-        result = !_testSubtree(predicate, value, error);
+    return function (value, errors) {
+      var result = !_testSubtree(predicate, value, errors);
 
-      if (result) {
-        error.splice(-1, (error.length - a));
-      }
       return result;
     };
   }
@@ -178,15 +180,11 @@ var congruence = (function () {
   function or () {
     var predicates = _.toArray(arguments);
 
-    return function or (value, error) {
-      var a = error.length,
-        result = _.any(predicates, function (predicate) {
-          return _testSubtree(predicate, value, error);
+    return function or (value, errors) {
+      var result = _.any(predicates, function (predicate) {
+          return _testSubtree(predicate, value, errors);
         });
 
-      if (result) {
-        error.splice(-1, (error.length - a));
-      }
       return result;
     };
   }

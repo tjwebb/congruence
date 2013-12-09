@@ -527,11 +527,9 @@ describe('congruence', function () {
         assert.isFalse(_.test(failedTemplate2, object));
     });
     it('should pass README example 2', function () {
-        // (?) means "optional"
-        // (+) means "one or more"
         var template = {
-            '(?)parameters': {            
-              '(+)' : _.or(               
+            '(?)parameters': {
+              '(+)' : _.or(
                 { $lt: _.or(_.isNumber, _.isDate) },
                 { $gt: _.or(_.isNumber, _.isDate) },
                 { $eq: _.isDefined }
@@ -555,23 +553,32 @@ describe('congruence', function () {
               balance:  { $eq: 1000 }
             }
           },
-          invalidObject = {
+          invalidObject1 = {
             parameters: {
               amount:  { $lt: 'hello' }
             },
             orderby: 'up'
           },
-          errors = [ ],
-          shouldFail; 
+          invalidObject2 = {
+            parameters: {
+              amount:  { crap: 'nonsense' }
+            }
+          },
+          errors1 = [ ], errors2 = [ ],
+          shouldFail1, shouldFail2; 
 
         assert.isTrue(_.test(template, matchingObject1));
         assert.isTrue(_.test(template, matchingObject2));
 
-        shouldFail = _.test(template, invalidObject, errors);
-        assert.isFalse(shouldFail);
-        assert.include(errors, 'isNumber(hello) returned false');
-        assert.include(errors, 'isDate(hello) returned false');
-        assert.include(errors, 'expected (up) to be an object');
+        shouldFail1 = _.test(template, invalidObject1, errors1);
+        assert.isFalse(shouldFail1);
+        assert.include(errors1, 'isNumber(hello) returned false');
+        assert.include(errors1, 'isDate(hello) returned false');
+        assert.include(errors1, 'expected (up) to be an object');
+
+        shouldFail2 = _.test(template, invalidObject2, errors2);
+        assert.isFalse(shouldFail2);
+        assert.include(errors2, 'no match for {"crap":"nonsense"}');
     });
   });
 });
