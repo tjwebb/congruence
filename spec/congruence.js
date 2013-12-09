@@ -65,7 +65,7 @@ describe('congruence', function () {
         var error = [ ];
           result = _.test({ a: 1 }, { a: 2 }, error);
 
-        assert.equal(error[0], 'expected 1 to equal 2');
+        assert.equal(error[0], 'expected (1) to equal 2');
       });
       it('should report a predicate fail', function () {
         var error = [ ];
@@ -85,8 +85,8 @@ describe('congruence', function () {
           },
           result = _.test(template, object, error);
 
-        assert.isTrue(_.contains(error, 'isNumber(bar) returned false'));
-        assert.isTrue(_.contains(error, 'isDate(bar) returned false'));
+        assert.include(error, 'isNumber(bar) returned false');
+        assert.include(error, 'isDate(bar) returned false');
       });
       it('should report multiple errors', function () {
         var error = [ ],
@@ -100,8 +100,8 @@ describe('congruence', function () {
           },
           result = _.test(template, object, error);
 
-        assert.isTrue(_.contains(error, 'expected -1 to equal 1'));
-        assert.isTrue(_.contains(error, 'isNumber(bar) returned false'));
+        assert.include(error, 'expected (-1) to equal 1');
+        assert.include(error, 'isNumber(bar) returned false');
       });
     });
     describe('key expressions', function () {
@@ -475,7 +475,7 @@ describe('congruence', function () {
       assert.isTrue(_.test(template, object));
     });
   });
-  describe('examples', function () {
+  describe('@example', function () {
     it('should pass README example 1', function () {
         // Unmatched template properties are marked with '  '
         var object = {
@@ -525,6 +525,53 @@ describe('congruence', function () {
 
         assert.isFalse(_.test(failedTemplate1, object));
         assert.isFalse(_.test(failedTemplate2, object));
+    });
+    it('should pass README example 2', function () {
+        // (?) means "optional"
+        // (+) means "one or more"
+        var template = {
+            '(?)parameters': {            
+              '(+)' : _.or(               
+                { $lt: _.or(_.isNumber, _.isDate) },
+                { $gt: _.or(_.isNumber, _.isDate) },
+                { $eq: _.isDefined }
+              )
+            },
+            '(?)orderby': {
+              '(+)': _.or(_.isNumber, /ASC/i, /DESC/i)
+            }
+          },
+          matchingObject1 = {
+            parameters: {
+              amount:   { $lt: 500 },
+              balance:  { $gt: 100 }
+            },
+            orderby: {
+              balance: 'asc'
+            }
+          },
+          matchingObject2 = {
+            parameters: {
+              balance:  { $eq: 1000 }
+            }
+          },
+          invalidObject = {
+            parameters: {
+              amount:  { $lt: 'hello' }
+            },
+            orderby: 'up'
+          },
+          errors = [ ],
+          shouldFail; 
+
+        assert.isTrue(_.test(template, matchingObject1));
+        assert.isTrue(_.test(template, matchingObject2));
+
+        shouldFail = _.test(template, invalidObject, errors);
+        assert.isFalse(shouldFail);
+        assert.include(errors, 'isNumber(hello) returned false');
+        assert.include(errors, 'isDate(hello) returned false');
+        assert.include(errors, 'expected (up) to be an object');
     });
   });
 });

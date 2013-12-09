@@ -5,7 +5,7 @@ congruence
 
 Validate the structure of Javascript objects using semantic templates. Written as an underscore mixin.
 
-#### 0. Concept
+### 0. Concept
 
   Use this module to check the congruence of Javascript structures and validity
   of values using semantic templates. Suppose an object:
@@ -36,9 +36,10 @@ Validate the structure of Javascript objects using semantic templates. Written a
   equality check. `megahertz` is not equal to `500` so that fails. And the
   template requires `foo` to be a function, but `obj.foo` is not even defined.
 
-#### 1. Examples
+### 1. Examples
+Unmatched template properties are marked with `->`
+#### A. Basic Usage
 
-        // Unmatched template properties are marked with '->'
         var object = {
             a: 3.1415926535,
             foo: {
@@ -87,9 +88,57 @@ Validate the structure of Javascript objects using semantic templates. Written a
         assert.isFalse(_.test(failedTemplate1, object));
         assert.isFalse(_.test(failedTemplate2, object));
 
-#### 2. Full Underscore API
+#### B. Advanced Usage
+- `(?)` means "optional"
+- `(+)` means "one or more"
 
-- `_.test(template, object)`
+        var template = {
+            '(?)parameters': {
+              '(+)' : _.or(
+                { $lt: _.or(_.isNumber, _.isDate) },
+                { $gt: _.or(_.isNumber, _.isDate) },
+                { $eq: _.isDefined }
+              )
+            },
+            '(?)orderby': {
+              '(+)': _.or(_.isNumber, /ASC/i, /DESC/i)
+            }
+          },
+          matchingObject1 = {
+            parameters: {
+              amount:   { $lt: 500 },
+              balance:  { $gt: 100 }
+            },
+            orderby: {
+              balance: 'asc'
+            }
+          },
+          matchingObject2 = {
+            parameters: {
+              balance:  { $eq: 1000 }
+            }
+          },
+          invalidObject = {
+            parameters: {
+      ->      amount:  { $lt: 'hello' }
+            },
+      ->    orderby: 'up'
+          },
+          errors = [ ],
+          shouldFail; 
+
+        assert.isTrue(_.test(template, matchingObject1));
+        assert.isTrue(_.test(template, matchingObject2));
+
+        shouldFail = _.test(template, invalidObject, errors);
+        assert.isFalse(shouldFail);
+        assert.include(errors, 'isNumber(hello) returned false');
+        assert.include(errors, 'isDate(hello) returned false');
+        assert.include(errors, 'expected (up) to be an object');
+
+### 2. Full Underscore API
+
+- `_.test(template, object, [errors])`
   - Test the object against the given template
   - General Usage:
 
@@ -98,9 +147,10 @@ Validate the structure of Javascript objects using semantic templates. Written a
               },
               object = {
                 <key>: <value>
-              };
+              },
+              errors = [ ]
 
-            _.test(template, object)
+            _.test(template, object, errors);
 
   - Any underscore `isXYZ` function can be used as a predicate; you can also define
     your own, e.g.

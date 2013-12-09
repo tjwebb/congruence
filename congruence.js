@@ -33,7 +33,7 @@ var congruence = (function () {
         return (!optional(key) && _.contains(templateKeys, '(?)'+ key)) || key === '(+)';
       }),
       result = _.map(keyset, function (_key) {
-        var subtree, key;
+        var subtree, key, oldlen = error.length;
 
         if (optional(_key)) {
           key = normalizeOptional(_key);
@@ -45,9 +45,9 @@ var congruence = (function () {
         else {
           key = _key;
         }
-
         subtree = _testSubtree(templateNode[_key], objectNode[key], error);
         if (!subtree && _.has(templateNode, '(+)')) {
+          error.splice(-1, (error.length - oldlen));
           return _testSubtree(templateNode['(+)'], objectNode[key], error);
         }
         else {
@@ -72,14 +72,17 @@ var congruence = (function () {
   function _testPredicate(predicate, value, error) {
     var result = isDefined(predicate) && _.any([
       _.isRegExp(predicate) && predicate.test(value),
-      _.isFunction(predicate) && predicate(value, error),
+      _.isFunction(predicate) && predicate(value, [ ]),
       predicate === value
     ]);
 
     if (result) return true;
 
-    if (!isDefined(predicate)) {
-      error.push('predicate is not defined for value [ ' + value + ' ]');
+    if (_.isUndefined(value) || _.isUndefined(predicate)) {
+      //error.push('predicate is not defined for value [ ' + value + ' ]');
+    }
+    else if (isObjectStrict(predicate) && !isObjectStrict(value)) {
+      error.push('expected (' + value + ') to be an object');
     }
     else if (_.isRegExp(predicate) && !predicate.test(value)) {
       error.push('expected ' + predicate + ' to match ' + value);
@@ -88,22 +91,18 @@ var congruence = (function () {
       var f = predicate.name || _.find(_.functions(_), function (name) {
         return _[name] == predicate;
       });
-      error.push((f || 'anonymous') + '(' + value + ') returned false');
+      if (!_.contains([ 'or', 'not' ], f)) {
+        error.push((f || 'anonymous') + '(' + value + ') returned false');
+      }
     }
     else if (predicate !== value) {
-      error.push('expected ' + predicate + ' to equal ' + value);
+      error.push('expected (' + predicate + ') to equal ' + value);
+    }
+    else {
+      error.push('unknown error');
     }
 
     return false;
-  }
-
-  /**
-   * Wrap a regular expression as a congruence predicate.
-   */
-  function regexAsPredicate (regex) {
-    return function (value) {
-      return regex.test(value);
-    };
   }
 
   /**
@@ -117,10 +116,10 @@ var congruence = (function () {
   function test (template, object, _error) {
     var error = _error || [ ];
 
-    if (!_.isObject(object)) {
+    if (!isObjectStrict(object)) {
       error.push('\'object\' must be a valid js object');
     }
-    if (!_.isObject(template)) {
+    if (!isObjectStrict(template)) {
       error.push('\'template\' must be a valid js object');
     }
 
@@ -151,7 +150,7 @@ var congruence = (function () {
    * @public
    */
   function isObjectStrict (val) {
-    return _.isObject(val) && !_.isFunction(val) && !_.isArray(val);
+    return _.isObject(val) && !_.isFunction(val) && !_.isArray(val) && !_.isRegExp(val);
   }
 
   /**
@@ -161,12 +160,11 @@ var congruence = (function () {
    */
   function not (predicate) {
     return function (value, error) {
-      var oldlen = error.length,
-        result = !_testSubtree(predicate, value, error),
-        newlen = error.length;
+      var a = error.length,
+        result = !_testSubtree(predicate, value, error);
 
       if (result) {
-        error.slice(0 - (newlen - oldlen));
+        error.splice(-1, (error.length - a));
       }
       return result;
     };
@@ -180,20 +178,14 @@ var congruence = (function () {
   function or () {
     var predicates = _.toArray(arguments);
 
-    return function (value, error) {
-      var oldlen = error.length,
+    return function or (value, error) {
+      var a = error.length,
         result = _.any(predicates, function (predicate) {
-          if (isObjectStrict(predicate) || isObjectStrict(value)) {
-            return _testSubtree(predicate, value, error);
-          }
-          else {
-            return _testPredicate(predicate, value, error);
-          }
-        }),
-        newlen = error.length;
+          return _testSubtree(predicate, value, error);
+        });
 
       if (result) {
-        error.slice(0 - (newlen - oldlen));
+        error.splice(-1, (error.length - a));
       }
       return result;
     };
