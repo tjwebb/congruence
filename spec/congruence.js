@@ -50,25 +50,25 @@ describe('congruence', function () {
   describe('#test()', function () {
     describe('@error[]', function () {
       it('should report an invalid 1st argument', function () {
-        var error = [ ];
+        var error = [ ],
           result = _.test(null, { a: 1 }, error);
 
         assert.equal(error[0], '\'template\' must be a valid js object');
       });
       it('should report an invalid 2nd argument', function () {
-        var error = [ ];
+        var error = [ ],
           result = _.test({ a: 1 }, null, error);
 
         assert.equal(error[0], '\'object\' must be a valid js object');
       });
       it('should report a value inequality', function () {
-        var error = [ ];
+        var error = [ ],
           result = _.test({ a: 1 }, { a: 2 }, error);
 
         assert.equal(error[0], 'expected (1) to equal 2');
       });
       it('should report a predicate fail', function () {
-        var error = [ ];
+        var error = [ ],
           result = _.test({ a: _.isString }, { a: 1 }, error);
 
         assert.equal(error[0], 'isString(1) returned false');
@@ -435,7 +435,6 @@ describe('congruence', function () {
           a: 1
         };
       assert.isTrue(_.test(template, object));
-
     });
   });
   describe('#isValidDate()', function () {
@@ -445,7 +444,7 @@ describe('congruence', function () {
         date3 = '12/3/13',
         date4 = '31/31/2013',           // FAIL
         date5 = new Date().valueOf(),   // FAIL
-        date6 = new Date().toString(),
+        date6 = JSON.stringify(new Date()),
         formats = [
           'MM/DD/YY',
           'MM/DD/YYYY',
@@ -458,9 +457,7 @@ describe('congruence', function () {
 
       assert.isFalse(_.isValidDate(formats)(date4));
       assert.isFalse(_.isValidDate(formats)(date5));
-
       assert.isTrue(_.isValidDate(formats)(date6));
-
     });
     it('should validate date type predicate', function () {
       var template = {
@@ -471,7 +468,6 @@ describe('congruence', function () {
           date1: '12/03/13',
           date2: '12/03/2013'
         };
-
       assert.isTrue(_.test(template, object));
     });
   });
@@ -519,7 +515,6 @@ describe('congruence', function () {
               }
             }
           };
-
         assert.isTrue(_.test(matchingTemplate1, object));
         assert.isTrue(_.test(matchingTemplate2, object));
 
@@ -527,58 +522,58 @@ describe('congruence', function () {
         assert.isFalse(_.test(failedTemplate2, object));
     });
     it('should pass README example 2', function () {
-        var template = {
-            '(?)parameters': {
-              '(+)' : _.or(
-                { $lt: _.or(_.isNumber, _.isDate) },
-                { $gt: _.or(_.isNumber, _.isDate) },
-                { $eq: _.isDefined }
-              )
-            },
-            '(?)orderby': {
-              '(+)': _.or(_.isNumber, /ASC/i, /DESC/i)
-            }
+      var template = {
+          '(?)parameters': {
+            '(+)' : _.or(
+              { $lt: _.or(_.isNumber, _.isDate) },
+              { $gt: _.or(_.isNumber, _.isDate) },
+              { $eq: _.isDefined }
+            )
           },
-          matchingObject1 = {
-            parameters: {
-              amount:   { $lt: 500 },
-              balance:  { $gt: 100 }
-            },
-            orderby: {
-              balance: 'asc'
-            }
+          '(?)orderby': {
+            '(+)': _.or(_.isNumber, /ASC/i, /DESC/i)
+          }
+        },
+        matchingObject1 = {
+          parameters: {
+            amount: { $lt: 500 },
+            balance: { $gt: 100 }
           },
-          matchingObject2 = {
-            parameters: {
-              balance:  { $eq: 1000 }
-            }
+          orderby: {
+            balance: 'asc'
+          }
+        },
+        matchingObject2 = {
+          parameters: {
+            balance: { $eq: 1000 }
+          }
+        },
+        invalidObject1 = {
+          parameters: {
+            amount: { $lt: 'hello' }
           },
-          invalidObject1 = {
-            parameters: {
-              amount:  { $lt: 'hello' }
-            },
-            orderby: 'up'
-          },
-          invalidObject2 = {
-            parameters: {
-              amount:  { crap: 'nonsense' }
-            }
-          },
-          errors1 = [ ], errors2 = [ ],
-          shouldFail1, shouldFail2; 
+          orderby: 'up'
+        },
+        invalidObject2 = {
+          parameters: {
+            amount: { crap: 'nonsense' }
+          }
+        },
+        errors1 = [ ], errors2 = [ ],
+        shouldFail1, shouldFail2; 
 
-        assert.isTrue(_.test(template, matchingObject1));
-        assert.isTrue(_.test(template, matchingObject2));
+      assert.isTrue(_.test(template, matchingObject1));
+      assert.isTrue(_.test(template, matchingObject2));
 
-        shouldFail1 = _.test(template, invalidObject1, errors1);
-        assert.isFalse(shouldFail1);
-        assert.include(errors1, 'isNumber(hello) returned false');
-        assert.include(errors1, 'isDate(hello) returned false');
-        assert.include(errors1, 'expected (up) to be an object');
+      shouldFail1 = _.test(template, invalidObject1, errors1);
+      assert.isFalse(shouldFail1);
+      assert.include(errors1, 'isNumber(hello) returned false');
+      assert.include(errors1, 'isDate(hello) returned false');
+      assert.include(errors1, 'expected (up) to be an object');
 
-        shouldFail2 = _.test(template, invalidObject2, errors2);
-        assert.isFalse(shouldFail2);
-        assert.include(errors2, 'no match for {"crap":"nonsense"}');
+      shouldFail2 = _.test(template, invalidObject2, errors2);
+      assert.isFalse(shouldFail2);
+      assert.include(errors2, 'no match for {"crap":"nonsense"}');
     });
   });
 });
