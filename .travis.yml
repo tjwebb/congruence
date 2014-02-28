@@ -4,4 +4,4 @@ node_js:
   - "0.10"
 
 before_install:
-  - npm config set registry="http://registry.npmjs.org/"
+  - 'npm set strict-ssl false'
