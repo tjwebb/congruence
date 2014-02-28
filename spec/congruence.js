@@ -575,5 +575,12 @@ describe('congruence', function () {
       assert.isFalse(shouldFail2);
       assert.include(errors2, 'no match for {"crap":"nonsense"}');
     });
+    it('should pass README headline example', function () {
+      var congruent = _.test(
+        { module: _.isString,   version: /v[\d\.]+/ },
+        { module: 'congruence', version: 'v1.2.5'   }
+      );
+      assert.isTrue(congruent);
+    });
   });
 });

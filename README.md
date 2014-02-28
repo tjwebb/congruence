@@ -3,7 +3,14 @@ congruence
 
 [![Build Status](https://travis-ci.org/tjwebb/congruence.png?branch=master)](https://travis-ci.org/tjwebb/congruence)
 
-Validate the structure of Javascript objects using semantic templates. Written as an underscore mixin.
+    var congruent = _.test(
+      { module: _.isString,   version: /v[\d\.]+/ },
+      { module: 'congruence', version: 'v1.2.5'   }
+    );
+    assert.isTrue(congruent);
+    
+It's like regular expressions for Javascript objects. Easily test the structure
+of Javascript objects using expressive templates. Designed as an underscore mixin.
 
 ### 0. Concept
 
