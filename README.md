@@ -3,6 +3,7 @@ congruence
 
 [![Build Status](https://travis-ci.org/tjwebb/congruence.png?branch=master)](https://travis-ci.org/tjwebb/congruence)
 
+    _.mixin(require('congruence'));
     var congruent = _.test(
       { module: _.isString,   version: /v[\d\.]+/ },
       { module: 'congruence', version: 'v1.2.5'   }
