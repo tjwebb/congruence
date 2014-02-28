@@ -1,14 +1,16 @@
 {
   "name": "congruence",
-  "version": "1.2.1",
+  "version": "1.2.4",
   "dependencies": {
     "moment": {
-      "version": "2.4.0",
-      "from": "moment@~2.4.0"
+      "version": "2.5.1",
+      "from": "moment@2.5.1",
+      "resolved": "https://registry.npmjs.org/moment/-/moment-2.5.1.tgz"
     },
     "underscore": {
-      "version": "1.5.2",
-      "from": "underscore@1.5.x"
+      "version": "1.6.0",
+      "from": "underscore@1.6.0",
+      "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.6.0.tgz"
     }
   }
 }

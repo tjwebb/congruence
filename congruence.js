@@ -1,7 +1,9 @@
-var congruence = (function () {
+/** @module congruence */
+(function () {
   'use strict';
 
-  var _ = require('underscore');
+  var _ = require('underscore'),
+    moment = require('moment');
 
   function optional (key) {
     return (/^\(\?\)/).test(key);
@@ -104,13 +106,13 @@ var congruence = (function () {
 
   /**
    * Returns true if an object matches a template.
-   * @public
-   * @param {Object}
-   * @param {Object}
-   * @param {Array}
-   * @example see README
+   *
+   * @param template {Object} - the congruence template to test the object against
+   * @param object   {Object} - the object to test
+   * @param errors   {Array=} - an optional array that will be populated if any errors occur
+   * @returns true if congruent, false otherwise
    */
-  function test (template, object, _errors) {
+  exports.test = function(template, object, _errors) {
     var errors = _errors || [ ];
 
     if (!isObjectStrict(object)) {
@@ -120,68 +122,61 @@ var congruence = (function () {
       logError(errors, '\'template\' must be a valid js object');
     }
     return !errors.length && _testSubtree(_.clone(template), object, errors);
-  }
+  };
 
   /**
    * Returns true if val is defined; false otherwise.
+   * @param {*} - the value to test
    * @public
    */
-  function isDefined (val) {
+  exports.isDefined = function (val) {
     return !_.isUndefined(val);
-  }
+  };
 
   /**
    * Returns true if val is a valid date according to the given formats.
+   * @param {*} - the value to test
    * @public
    */
-  function isValidDate (formats) {
+  exports.isValidDate = function (formats) {
     return function (val) {
       return moment(val, formats).isValid();
     };
-  }
+  };
 
   /**
-   * Return true iff val is at once an object and not a function nor
-   * an array.
+   * Return true iff val is both an object and not a function nor an array.
+   * @param {*} - the value to test
    * @public
    */
-  function isObjectStrict (val) {
+  exports.isObjectStrict = function (val) {
     return _.isObject(val) && !_.isFunction(val) && !_.isArray(val) && !_.isRegExp(val);
-  }
+  };
 
   /**
    * Negates the return value of the given function, or the given value itself
    * if not a function.
+   * @param {Function} - the NOT condition operand
    * @public
    */
-  function not (predicate) {
+  exports.not = function(predicate) {
     return function (value, errors) {
       return !_testSubtree(predicate, value, errors);
     };
-  }
+  };
 
   /**
    * Returns true if the value is validated by any one of the provided
    * predicate functions.
+   * @param {...Function} - the OR condition operands
    * @public
    */
-  function or () {
+  exports.or = function () {
     var predicates = _.toArray(arguments);
     return function or (value, errors) {
       return _.any(predicates, function (predicate) {
         return _testSubtree(predicate, value, errors);
       });
     };
-  }
-
-  return {
-    isDefined: isDefined,
-    isValidDate: isValidDate,
-    isObjectStrict: isObjectStrict,
-    or: or,
-    not: not,
-    test: test
   };
 })();
-
-module.exports = congruence;
