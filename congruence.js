@@ -10,7 +10,7 @@
    * The congruence API.
    * @module congruence
    */
-  _.extend(exports, /** @exports congruence */ {
+  _.extend(congruence, /** @exports congruence */ {
 
     /**
      * Returns true if an object matches a template.
