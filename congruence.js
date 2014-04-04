@@ -4,12 +4,12 @@
   var _ = require('underscore'),
     moment = require('moment');
 
-  var congruence = exports;
-  
   /**
    * The congruence API.
    * @module congruence
    */
+  var congruence = exports;
+  
   _.extend(congruence, /** @exports congruence */ {
 
     /**
@@ -21,7 +21,7 @@
      * @param errors   {Array=} - an optional array that will be populated if any errors occur
      * @returns true if congruent, false otherwise
      */
-    test: function(template, object, _errors) {
+    congruent: function(template, object, _errors) {
       var errors = _errors || [ ];
 
       if (!congruence.isObjectStrict(object)) {
@@ -94,6 +94,13 @@
       };
     }
   });
+
+  /**
+   * XXX For backward-compatibility; will remove support in 1.3.0.
+   * _.congruent is more API- and namespace-friendly and less vague than _.test.
+   * @deprecated
+   */
+  congruence.test = congruence.congruent;
 
   /**
    * Recurse into a subtree and test each node against the template.

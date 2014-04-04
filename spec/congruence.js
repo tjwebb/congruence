@@ -1,6 +1,7 @@
 var _ = require('underscore'),
   assert = require('chai').assert,
-  moment = require('moment');
+  moment = require('moment'),
+  semver = require('semver');
 
 _.mixin(require('../congruence'));
 
@@ -15,7 +16,7 @@ describe('congruence', function () {
       assert.ok(require('../congruence'));
     });
     it('should mix into underscore', function () {
-      assert.isFunction(_.test);
+      assert.isFunction(_.congruent);
       assert.isFunction(_.isDefined);
       assert.isFunction(_.isObjectStrict);
       assert.isFunction(_.not);
@@ -51,25 +52,25 @@ describe('congruence', function () {
     describe('@error[]', function () {
       it('should report an invalid 1st argument', function () {
         var error = [ ],
-          result = _.test(null, { a: 1 }, error);
+          result = _.congruent(null, { a: 1 }, error);
 
         assert.equal(error[0], '\'template\' must be a valid js object');
       });
       it('should report an invalid 2nd argument', function () {
         var error = [ ],
-          result = _.test({ a: 1 }, null, error);
+          result = _.congruent({ a: 1 }, null, error);
 
         assert.equal(error[0], '\'object\' must be a valid js object');
       });
       it('should report a value inequality', function () {
         var error = [ ],
-          result = _.test({ a: 1 }, { a: 2 }, error);
+          result = _.congruent({ a: 1 }, { a: 2 }, error);
 
         assert.equal(error[0], 'expected (1) to equal 2');
       });
       it('should report a predicate fail', function () {
         var error = [ ],
-          result = _.test({ a: _.isString }, { a: 1 }, error);
+          result = _.congruent({ a: _.isString }, { a: 1 }, error);
 
         assert.equal(error[0], 'isString(1) returned false');
       });
@@ -83,7 +84,7 @@ describe('congruence', function () {
             a: 1,
             foo: 'bar'
           },
-          result = _.test(template, object, error);
+          result = _.congruent(template, object, error);
 
         assert.include(error, 'isNumber(bar) returned false');
         assert.include(error, 'isDate(bar) returned false');
@@ -98,7 +99,7 @@ describe('congruence', function () {
             a: 1,
             foo: 'bar'
           },
-          result = _.test(template, object, error);
+          result = _.congruent(template, object, error);
 
         assert.include(error, 'expected (-1) to equal 1');
         assert.include(error, 'isNumber(bar) returned false');
@@ -128,9 +129,9 @@ describe('congruence', function () {
             }
           };
 
-        assert.isTrue(_.test(template, object1));
-        assert.isTrue(_.test(template, object2));
-        assert.isFalse(_.test(template, object3));
+        assert.isTrue(_.congruent(template, object1));
+        assert.isTrue(_.congruent(template, object2));
+        assert.isFalse(_.congruent(template, object3));
       });
       it('should correctly handle 0+ key expression', function () {
         var template = {
@@ -188,11 +189,11 @@ describe('congruence', function () {
             }
           };
 
-        assert.isTrue(_.test(template, object1));
-        assert.isTrue(_.test(template, object2));
-        assert.isTrue(_.test(template, object3));
-        assert.isFalse(_.test(template, object4));
-        assert.isFalse(_.test(template, object5));
+        assert.isTrue(_.congruent(template, object1));
+        assert.isTrue(_.congruent(template, object2));
+        assert.isTrue(_.congruent(template, object3));
+        assert.isFalse(_.congruent(template, object4));
+        assert.isFalse(_.congruent(template, object5));
       });
       it('should correctly handle 1+ key expression with options arrays', function () {
         var template = {
@@ -222,8 +223,8 @@ describe('congruence', function () {
             }
           };
 
-        assert.isTrue(_.test(template, object1));
-        assert.isTrue(_.test(template, object2));
+        assert.isTrue(_.congruent(template, object1));
+        assert.isTrue(_.congruent(template, object2));
       });
     });
     it('should validate number type predicate', function () {
@@ -235,17 +236,17 @@ describe('congruence', function () {
           a: 1,
           b: 2.718
         };
-      assert.isTrue(_.test(template, object));
+      assert.isTrue(_.congruent(template, object));
     });
     it('should validate string type predicate', function () {
       var template = { a: _.isString },
         object = { a: 'hello' };
-      assert.isTrue(_.test(template, object));
+      assert.isTrue(_.congruent(template, object));
     });
     it('should validate null type predicate', function () {
       var template = { a: _.isNull },
         object = { a: null };
-      assert.isTrue(_.test(template, object));
+      assert.isTrue(_.congruent(template, object));
     });
     it('should validate list type predicate', function () {
       var template = { a: _.isArray },
@@ -255,8 +256,8 @@ describe('congruence', function () {
         object2 = {
           a: [ 1, 2, 3 ]
         };
-      assert.isTrue(_.test(template, object1));
-      assert.isTrue(_.test(template, object2));
+      assert.isTrue(_.congruent(template, object1));
+      assert.isTrue(_.congruent(template, object2));
     });
     it('should validate list equality', function () {
       var template = {
@@ -265,7 +266,7 @@ describe('congruence', function () {
         object = {
           a: [ 1, 2, 3 ]
         };
-      assert.isTrue(_.test(template, object));
+      assert.isTrue(_.congruent(template, object));
     });
     it('should validate custom list predicate', function () {
       var template = {
@@ -278,7 +279,7 @@ describe('congruence', function () {
         object = {
           a: [ 1, 3, 5 ]
         };
-      assert.isTrue(_.test(template, object));
+      assert.isTrue(_.congruent(template, object));
     });
     it('should validate value equality', function () {
       var template = {
@@ -289,23 +290,23 @@ describe('congruence', function () {
           a: 1,
           b: 2.718
         };
-      assert.isTrue(_.test(template, object));
+      assert.isTrue(_.congruent(template, object));
     });
     it('should validate wildcard predicate for all values except undefined', function () {
       var template = {
         a: _.isDefined
       };
 
-      assert.isTrue(_.test(template, { a: 'hello world' }));
-      assert.isTrue(_.test(template, { a: { } }));
-      assert.isTrue(_.test(template, { a: 123 }));
-      assert.isTrue(_.test(template, { a: [1, 2, 3] }));
-      assert.isTrue(_.test(template, { a: null }));
-      assert.isTrue(_.test(template, { a: 0 }));
-      assert.isTrue(_.test(template, { a: false }));
+      assert.isTrue(_.congruent(template, { a: 'hello world' }));
+      assert.isTrue(_.congruent(template, { a: { } }));
+      assert.isTrue(_.congruent(template, { a: 123 }));
+      assert.isTrue(_.congruent(template, { a: [1, 2, 3] }));
+      assert.isTrue(_.congruent(template, { a: null }));
+      assert.isTrue(_.congruent(template, { a: 0 }));
+      assert.isTrue(_.congruent(template, { a: false }));
 
-      assert.isFalse(_.test(template, { a: undefined }));
-      assert.isFalse(_.test(template, { }));
+      assert.isFalse(_.congruent(template, { a: undefined }));
+      assert.isFalse(_.congruent(template, { }));
     });
     it('should validate structure congruence', function () {
       var template1 = {
@@ -334,35 +335,35 @@ describe('congruence', function () {
             }
           }
         };
-      assert.isTrue(_.test(template1, object));
-      assert.isTrue(_.test(template2, object));
-      assert.isTrue(_.test(template3, object));
+      assert.isTrue(_.congruent(template1, object));
+      assert.isTrue(_.congruent(template2, object));
+      assert.isTrue(_.congruent(template3, object));
     });
 
     it('should validate non-strict object predicate', function () {
       var template = { a: _.isObject };
-      assert.isTrue(_.test(template, { a: [ ] }));
-      assert.isTrue(_.test(template, { a: function () { } }));
+      assert.isTrue(_.congruent(template, { a: [ ] }));
+      assert.isTrue(_.congruent(template, { a: function () { } }));
     });
     it('should invalidate false list predicate', function () {
       var template = { a: _.isArray },
         object = { a: { } };
-      assert.isFalse(_.test(template, object));
+      assert.isFalse(_.congruent(template, object));
     });
     it('should invalidate false *strict* object predicate', function () {
       var template = { a: _.isObjectStrict };
-      assert.isFalse(_.test(template, { a: [ ] }));
-      assert.isFalse(_.test(template, { a: function () { } }));
+      assert.isFalse(_.congruent(template, { a: [ ] }));
+      assert.isFalse(_.congruent(template, { a: function () { } }));
     });
     it('should invalidate falsy predicate', function () {
       var template = { a: _.isString },
         object = { a: { } };
-      assert.isFalse(_.test(template, object));
+      assert.isFalse(_.congruent(template, object));
     });
     it('should invalidate value inequality', function () {
       var template = { a: 'hello' },
         object = { a: 'world' };
-      assert.isFalse(_.test(template, object));
+      assert.isFalse(_.congruent(template, object));
     });
     it('should invalidate structure incongruence', function () {
       var template = {
@@ -381,7 +382,7 @@ describe('congruence', function () {
             }
           }
         };
-      assert.isFalse(_.test(template, object1));
+      assert.isFalse(_.congruent(template, object1));
     });
     it('should invalidate missing object properties', function () {
       var template = {
@@ -393,7 +394,7 @@ describe('congruence', function () {
             foo: 'bar'
           }
         };
-      assert.isFalse(_.test(template, object));
+      assert.isFalse(_.congruent(template, object));
     });
     it('should invalidate superfluous object properties', function () {
       var template = {
@@ -405,7 +406,7 @@ describe('congruence', function () {
           b: { },
           c: 'extra'
         };
-      assert.isFalse(_.test(template, object));
+      assert.isFalse(_.congruent(template, object));
     });
     it('should invalidate nested falsy predicate', function () {
       var template = {
@@ -424,7 +425,7 @@ describe('congruence', function () {
             }
           }
         };
-      assert.isFalse(_.test(template, object));
+      assert.isFalse(_.congruent(template, object));
     });
     it('should validate missing object key but which is allowed undefined by template', function () {
       var template = {
@@ -434,7 +435,7 @@ describe('congruence', function () {
         object = {
           a: 1
         };
-      assert.isTrue(_.test(template, object));
+      assert.isTrue(_.congruent(template, object));
     });
   });
   describe('#isValidDate()', function () {
@@ -468,7 +469,7 @@ describe('congruence', function () {
           date1: '12/03/13',
           date2: '12/03/2013'
         };
-      assert.isTrue(_.test(template, object));
+      assert.isTrue(_.congruent(template, object));
     });
   });
   describe('@example', function () {
@@ -515,11 +516,11 @@ describe('congruence', function () {
               }
             }
           };
-        assert.isTrue(_.test(matchingTemplate1, object));
-        assert.isTrue(_.test(matchingTemplate2, object));
+        assert.isTrue(_.congruent(matchingTemplate1, object));
+        assert.isTrue(_.congruent(matchingTemplate2, object));
 
-        assert.isFalse(_.test(failedTemplate1, object));
-        assert.isFalse(_.test(failedTemplate2, object));
+        assert.isFalse(_.congruent(failedTemplate1, object));
+        assert.isFalse(_.congruent(failedTemplate2, object));
     });
     it('should pass README example 2', function () {
       var template = {
@@ -562,25 +563,23 @@ describe('congruence', function () {
         errors1 = [ ], errors2 = [ ],
         shouldFail1, shouldFail2; 
 
-      assert.isTrue(_.test(template, matchingObject1));
-      assert.isTrue(_.test(template, matchingObject2));
+      assert.isTrue(_.congruent(template, matchingObject1));
+      assert.isTrue(_.congruent(template, matchingObject2));
 
-      shouldFail1 = _.test(template, invalidObject1, errors1);
+      shouldFail1 = _.congruent(template, invalidObject1, errors1);
       assert.isFalse(shouldFail1);
       assert.include(errors1, 'isNumber(hello) returned false');
       assert.include(errors1, 'isDate(hello) returned false');
       assert.include(errors1, 'expected (up) to be an object');
 
-      shouldFail2 = _.test(template, invalidObject2, errors2);
+      shouldFail2 = _.congruent(template, invalidObject2, errors2);
       assert.isFalse(shouldFail2);
       assert.include(errors2, 'no match for {"crap":"nonsense"}');
     });
     it('should pass README headline example', function () {
-      var congruent = _.test(
-        { module: _.isString,   version: /v[\d\.]+/ },
-        { module: 'congruence', version: 'v1.2.5'   }
-      );
-      assert.isTrue(congruent);
+      var template = { module: _.isString,   version: semver.valid };
+      var object =   { module: 'congruence', version: 'v1.2.9'     };
+      assert.isTrue(_.congruent(template, object));
     });
   });
 });

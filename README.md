@@ -3,17 +3,21 @@ congruence
 
 [![Build Status](https://travis-ci.org/tjwebb/congruence.png?branch=master)](https://travis-ci.org/tjwebb/congruence)
 
+## 0. Quick four-line code example:
+
     _.mixin(require('congruence'));
-    var congruent = _.test(
-      { module: _.isString,   version: /v[\d\.]+/ },
-      { module: 'congruence', version: 'v1.2.5'   }
-    );
-    assert.isTrue(congruent);
+    var template = { module: _.isString,   version: semver.valid };
+    var object =   { module: 'congruence', version: 'v1.2.9'     };
+    assert.isTrue(_.congruent(template, object));
+
+Above, the object is **congruent** to the template because `object.module` is a
+string, and `semver.valid`[[1]](https://www.npmjs.org/package/semver) returns
+true for `object.version`[[2]](https://github.com/tjwebb/congruence/blob/master/spec/congruence.js#L578).
     
 It's like regular expressions for Javascript objects. Easily test the structure
 of Javascript objects using expressive templates. Designed as an underscore mixin.
 
-### 0. Concept
+## 1. Concept
 
   Use this module to check the congruence of Javascript structures and validity
   of values using semantic templates. Suppose an object:
@@ -44,8 +48,8 @@ of Javascript objects using expressive templates. Designed as an underscore mixi
   equality check. `megahertz` is not equal to `500` so that fails. And the
   template requires `foo` to be a function, but `obj.foo` is not even defined.
 
-### 1. Examples
-#### A. Basic Usage
+## 2. Examples
+### A. Basic Usage
 - Unmatched template properties are marked with `->`
 
           var object = {
@@ -90,13 +94,13 @@ of Javascript objects using expressive templates. Designed as an underscore mixi
               }
             };
 
-          assert.isTrue(_.test(matchingTemplate1, object));
-          assert.isTrue(_.test(matchingTemplate2, object));
+          assert.isTrue(_.congruent(matchingTemplate1, object));
+          assert.isTrue(_.congruent(matchingTemplate2, object));
 
-          assert.isFalse(_.test(failedTemplate1, object));
-          assert.isFalse(_.test(failedTemplate2, object));
+          assert.isFalse(_.congruent(failedTemplate1, object));
+          assert.isFalse(_.congruent(failedTemplate2, object));
 
-#### B. Advanced Usage
+### B. Advanced Usage
 - `(?)` means "optional"
 - `(+)` means "one or more"
 
@@ -142,22 +146,22 @@ of Javascript objects using expressive templates. Designed as an underscore mixi
             shouldFail1,
             shouldFail2; 
 
-          assert.isTrue(_.test(template, matchingObject1));
-          assert.isTrue(_.test(template, matchingObject2));
+          assert.isTrue(_.congruent(template, matchingObject1));
+          assert.isTrue(_.congruent(template, matchingObject2));
 
-          shouldFail1 = _.test(template, invalidObject1, errors1);
+          shouldFail1 = _.congruent(template, invalidObject1, errors1);
           assert.isFalse(shouldFail1);
           assert.include(errors1, 'isNumber(hello) returned false');
           assert.include(errors1, 'isDate(hello) returned false');
           assert.include(errors1, 'expected (up) to be an object');
 
-          shouldFail2 = _.test(template, invalidObject2, errors2);
+          shouldFail2 = _.congruent(template, invalidObject2, errors2);
           assert.isFalse(shouldFail2);
           assert.include(errors2, 'no match for {"crap":"nonsense"}');
 
-### 2. Full Underscore API
+## 3. Full Underscore API
 
-- `_.test(template, object, [errors])`
+- `_.congruent(template, object, [errors])`
   - Test the object against the given template
   - General Usage:
 
@@ -169,7 +173,7 @@ of Javascript objects using expressive templates. Designed as an underscore mixi
               },
               errors = [ ]
 
-            _.test(template, object, errors);
+            _.congruent(template, object, errors);
 
   - Any underscore `isXYZ` function can be used as a predicate; you can also define
     your own, e.g.
@@ -184,10 +188,14 @@ of Javascript objects using expressive templates. Designed as an underscore mixi
               object = {
                 a: [ 1, 3, 5 ]
               };
-            assert.isTrue(_.test(template, object));
+            assert.isTrue(_.congruent(template, object));
 
 - `_.isDefined(value)`
   - return true if value is not `undefined`
 
 - `_.isObjectStrict(value)`
   - strictly check whether `value` is an object. It cannot be an array or function.
+
+# 4. Contribute!
+- File a bug or feature request: https://github.com/tjwebb/congruence/issues
+- I `<3` pull requests
