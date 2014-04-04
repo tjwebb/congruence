@@ -1,4 +1,4 @@
-
+{
   "name": "congruence",
   "version": "1.2.9",
   "description": "Validate the structure of Javascript objects using semantic templates. Written as an underscore mixin.",
@@ -11,7 +11,7 @@
     "mocha": "~1.14.0",
     "chai": "~1.8.1",
     "jsdoc": "~3.3.0-alpha4",
-    "semver": ">2.0.0"
+    "semver": ">=2.0.0"
   },
   "scripts": {
     "test": "mocha -R spec spec/",
