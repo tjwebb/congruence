@@ -1,6 +1,5 @@
 var _ = require('underscore'),
   assert = require('chai').assert,
-  moment = require('moment'),
   semver = require('semver');
 
 describe('congruence', function () {
@@ -15,7 +14,7 @@ describe('congruence', function () {
     });
     it('should mix into underscore', function () {
       assert.isFunction(_.congruent);
-      assert.isFunction(_.isDefined);
+      assert.isFunction(_.compose(_.not, _.isUndefined));
       assert.isFunction(_.isPlainObject);
       assert.isFunction(_.not);
       assert.isFunction(_.or);
@@ -102,8 +101,8 @@ describe('congruence', function () {
       it('should treat objects inside or() clause as templates', function () {
         var template = {
             attr: _.or(
-              { $eq:    _.isDefined },
-              { EQUALS: _.isDefined }
+              { $eq:    _.compose(_.not, _.isUndefined) },
+              { EQUALS: _.compose(_.not, _.isUndefined) }
             )
           },
           object1 = {   // OK
@@ -130,8 +129,8 @@ describe('congruence', function () {
         var template = {
             '(?)attributes': {
               '(+)' : _.or(
-                { $eq: _.isDefined },
-                { EQUALS: _.isDefined },
+                { $eq: _.compose(_.not, _.isUndefined) },
+                { EQUALS: _.compose(_.not, _.isUndefined) },
                 { $lt: _.or(_.isNumber, _.isDate) },
                 { LESS_THAN: _.or(_.isNumber, _.isDate) },
                 { $gt: _.or(_.isNumber, _.isDate) },
@@ -192,8 +191,8 @@ describe('congruence', function () {
         var template = {
             '(?)attributes': {
               '(+)' : _.or(
-                { $eq: _.isDefined },
-                { EQUALS: _.isDefined },
+                { $eq: _.compose(_.not, _.isUndefined) },
+                { EQUALS: _.compose(_.not, _.isUndefined) },
                 { $lt: _.or(_.isNumber, _.isDate) },
                 { LESS_THAN: _.or(_.isNumber, _.isDate) }
               )
@@ -287,7 +286,7 @@ describe('congruence', function () {
     });
     it('should validate wildcard predicate for all values except undefined', function () {
       var template = {
-        a: _.isDefined
+        a: _.compose(_.not, _.isUndefined)
       };
 
       assert.isTrue(_.congruent(template, { a: 'hello world' }));
@@ -514,7 +513,7 @@ describe('congruence', function () {
             '(+)' : _.or(
               { $lt: _.or(_.isNumber, _.isDate) },
               { $gt: _.or(_.isNumber, _.isDate) },
-              { $eq: _.isDefined }
+              { $eq: _.compose(_.not, _.isUndefined) }
             )
           },
           '(?)orderby': {

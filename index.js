@@ -1,8 +1,7 @@
 (function () {
   'use strict';
 
-  var _ = require('underscore'),
-    moment = require('moment');
+  var _ = require('underscore');
 
   /**
    * The congruence API.
@@ -32,16 +31,6 @@
         logError(errors, '\'template\' must be a valid js object');
       }
       return !errors.length && _testSubtree(_.clone(template), object, errors);
-    },
-
-    /**
-     * Returns true if val is defined; false otherwise.
-     *
-     * @static
-     * @param {*} - the value to test
-     */
-    isDefined: function (val) {
-      return !_.isUndefined(val);
     },
 
     /**
@@ -135,7 +124,7 @@
    * Test a value/predicate combo, and report any errors.
    */
   function _testPredicate(predicate, value, errors) {
-    var result = congruence.isDefined(predicate) && _.any([
+    var result = _.not(_.isUndefined(predicate)) && _.any([
       _.isRegExp(predicate) && predicate.test(value),
       _.isFunction(predicate) && predicate(value, [ ]),
       predicate === value

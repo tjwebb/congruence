@@ -4,9 +4,8 @@
   "description": "Validate the structure of Javascript objects using semantic templates. Written as an underscore mixin.",
   "main": "index.js",
   "dependencies": {
-    "moment": ">2.4",
-    "underscore": ">1.5.x",
-    "underscore-contrib": "~0.2.2"
+    "underscore": "1.6.x",
+    "underscore-contrib": "0.2.2"
   },
   "devDependencies": {
     "mocha": "~1.14.0",
