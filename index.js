@@ -7,7 +7,7 @@
   _.mixin({
 
     /**
-     * Return true iff val is both an object and not a function nor an array.
+     * Return true iff val is a literal, bona fide Object
      *
      * @static
      * @param {*} - the value to test
@@ -74,7 +74,7 @@
   });
 
   /**
-   * XXX For backward-compatibility; will remove support in 1.3.0.
+   * XXX For backward-compatibility; will remove support in 1.5.0.
    * _.congruent is more API- and namespace-friendly and less vague than _.test.
    * @deprecated
    */
