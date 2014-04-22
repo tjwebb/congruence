@@ -55,19 +55,6 @@
     },
 
     /**
-    * Negates the return value of the given function, or the given value itself
-    * if not a function.
-    *
-    * @static
-    * @param {Function} - the NOT condition operand
-    */
-    not: function(predicate) {
-      return function (value, errors) {
-        return !_testSubtree(predicate, value, errors);
-      };
-    },
-
-    /**
      * Returns true if the value is validated by any one of the provided
      * predicate functions.
      *

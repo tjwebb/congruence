@@ -2,7 +2,7 @@
   "name": "congruence",
   "version": "1.4.0",
   "description": "Validate the structure of Javascript objects using semantic templates. Written as an underscore mixin.",
-  "main": "congruence.js",
+  "main": "index.js",
   "dependencies": {
     "moment": ">2.4",
     "underscore": ">1.5.x",
@@ -15,7 +15,7 @@
     "semver": ">=2.0.0"
   },
   "scripts": {
-    "test": "mocha -R spec spec/",
+    "test": "./node_modules/.bin/mocha -R spec spec/",
     "jsdoc": "./node_modules/.bin/jsdoc congruence.js spec/"
   },
   "repository": {
@@ -32,7 +32,7 @@
     "xtuple"
   ],
   "author": "Travis Webb",
-  "license": "BSD",
+  "license": "MIT",
   "readmeFilename": "README.md",
   "gitHead": "c248a6350bee9c26179de279909c5408b95f0dff",
   "bugs": {
