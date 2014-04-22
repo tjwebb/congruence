@@ -2,6 +2,15 @@ var _ = require('underscore'),
   assert = require('chai').assert,
   semver = require('semver');
 
+describe('underscore-contrib compatibility', function () {
+  /** congruence will mix in the contrib functions into _ */
+  before(function () {
+    _.mixin(require('..'));
+    _.mixin(require('underscore-contrib'));
+  });
+
+});
+
 describe('congruence', function () {
 
   before(function () {
@@ -428,6 +437,27 @@ describe('congruence', function () {
           a: 1
         };
       assert.isTrue(_.congruent(template, object));
+    });
+  });
+  describe('#isObjectStrict', function () {
+    it('should validate a bona fide Object', function () {
+      assert.isTrue(_.isObjectStrict({ }));
+      assert.isTrue(_.isObjectStrict({ a: _.isZero }));
+      assert.isTrue(_.isObjectStrict(new Object({ hello: 'world' })));
+    });
+    it('should invalidate non-objects', function () {
+      assert.isFalse(_.isObjectStrict(5));
+      assert.isFalse(_.isObjectStrict(null));
+      assert.isFalse(_.isObjectStrict(undefined));
+      assert.isFalse(_.isObjectStrict('hello'));
+    });
+    it('should invalidate impure Object types', function () {
+      assert.isFalse(_.isObjectStrict([ ]));
+      assert.isFalse(_.isObjectStrict(arguments));
+      assert.isFalse(_.isObjectStrict(new Date()));
+      assert.isFalse(_.isObjectStrict(String('ohai')));
+      assert.isFalse(_.isObjectStrict(Number(5)));
+      assert.isFalse(_.isObjectStrict(function () { }));
     });
   });
   describe('#isValidDate()', function () {

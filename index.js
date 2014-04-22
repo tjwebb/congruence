@@ -3,14 +3,37 @@
 
   var _ = require('underscore');
 
+  _.mixin(require('underscore-contrib'));
+  _.mixin({
+
+    /**
+     * Return true iff val is both an object and not a function nor an array.
+     *
+     * @static
+     * @param {*} - the value to test
+     */
+    isObjectStrict: function (val) {
+      return _.all([
+        _.isObject(val),
+        _.not(_.isFunction(val)),
+        _.not(_.isArray(val)),
+        _.not(_.isRegExp(val)),
+        _.not(_.isDate(val)),
+        _.not(_.isArguments(val)),
+        _.not(_.isElement(val)),
+        _.not(_.isNumber(val)),
+        _.not(_.isBoolean(val))
+      ]);
+    }
+  });
+
   /**
    * The congruence API.
    * @module congruence
    */
   var congruence = exports;
   
-  _.extend(congruence, require('underscore-contrib'), /** @exports congruence */ {
-  
+  _.extend(congruence, /** @exports congruence */ {
 
     /**
      * Returns true if an object matches a template.
@@ -24,23 +47,13 @@
     congruent: function(template, object, _errors) {
       var errors = _errors || [ ];
 
-      if (!congruence.isObjectStrict(object)) {
+      if (!_.isObjectStrict(object)) {
         logError(errors, '\'object\' must be a valid js object');
       }
-      if (!congruence.isObjectStrict(template)) {
+      if (!_.isObjectStrict(template)) {
         logError(errors, '\'template\' must be a valid js object');
       }
       return !errors.length && _testSubtree(_.clone(template), object, errors);
-    },
-
-    /**
-     * Return true iff val is both an object and not a function nor an array.
-     *
-     * @static
-     * @param {*} - the value to test
-     */
-    isObjectStrict: function (val) {
-      return _.isObject(val) && !_.isFunction(val) && !_.isArray(val) && !_.isRegExp(val);
     },
 
     /**
@@ -74,7 +87,7 @@
   function _testSubtree (templateNode, objectNode, errors) {
 
     // a leaf is reached
-    if (!congruence.isObjectStrict(templateNode) || !congruence.isObjectStrict(objectNode)) {
+    if (!_.isObjectStrict(templateNode) || !_.isObjectStrict(objectNode)) {
       return _testNode(templateNode, objectNode, errors);
     }
 
@@ -135,7 +148,7 @@
     if (_.isUndefined(predicate)) {
       logError(errors, 'no match for ' + JSON.stringify(value));
     }
-    else if (congruence.isObjectStrict(predicate) && !congruence.isObjectStrict(value)) {
+    else if (_.isObjectStrict(predicate) && !_.isObjectStrict(value)) {
       logError(errors, 'expected (' + value + ') to be an object');
     }
     else if (_.isRegExp(predicate) && !predicate.test(value)) {
