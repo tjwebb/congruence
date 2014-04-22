@@ -10,7 +10,8 @@
    */
   var congruence = exports;
   
-  _.extend(congruence, /** @exports congruence */ {
+  _.extend(congruence, require('underscore-contrib'), /** @exports congruence */ {
+  
 
     /**
      * Returns true if an object matches a template.
@@ -41,18 +42,6 @@
      */
     isDefined: function (val) {
       return !_.isUndefined(val);
-    },
-
-    /**
-     * Returns true if val is a valid date according to the given formats.
-     *
-     * @static
-     * @param {*} - the value to test
-     */
-    isValidDate: function (formats) {
-      return function (val) {
-        return moment(val, formats).isValid();
-      };
     },
 
     /**

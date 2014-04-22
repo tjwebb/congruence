@@ -444,30 +444,23 @@ describe('congruence', function () {
         date2 = '12/03/2013',
         date3 = '12/3/13',
         date4 = '31/31/2013',           // FAIL
-        date5 = new Date().valueOf(),   // FAIL
-        date6 = JSON.stringify(new Date()),
-        formats = [
-          'MM/DD/YY',
-          'MM/DD/YYYY',
-          moment.defaultFormat
-        ];
+        date5 = new Date().valueOf();   // FAIL
 
-      assert.isTrue(_.isValidDate(formats)(date1));
-      assert.isTrue(_.isValidDate(formats)(date2));
-      assert.isTrue(_.isValidDate(formats)(date3));
+      assert.isTrue(_.isValidDate(new Date(date1)));
+      assert.isTrue(_.isValidDate(new Date(date2)));
+      assert.isTrue(_.isValidDate(new Date(date3)));
+      assert.isTrue(_.isValidDate(new Date(date5)));
 
-      assert.isFalse(_.isValidDate(formats)(date4));
-      assert.isFalse(_.isValidDate(formats)(date5));
-      assert.isTrue(_.isValidDate(formats)(date6));
+      assert.isFalse(_.isValidDate(new Date(date4)));
     });
     it('should validate date type predicate', function () {
       var template = {
-          date1: _.isValidDate([ 'MM/DD/YY' ]),
-          date2: _.isValidDate([ 'MM/DD/YYYY' ])
+          date1: _.isValidDate,
+          date2: _.isValidDate
         },
         object = {
-          date1: '12/03/13',
-          date2: '12/03/2013'
+          date1: new Date('12/03/13'),
+          date2: new Date('12/03/2013')
         };
       assert.isTrue(_.congruent(template, object));
     });
