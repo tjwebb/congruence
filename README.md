@@ -72,7 +72,7 @@ of Javascript objects using expressive templates. Designed as an underscore mixi
                 bar: {
                   b: _.isString,
                   c: _.isArray,
-                  d: _.not(_.isFunction)
+                  d: _.compose(_.not, _.isFunction)
                 }
               }
             },
@@ -84,7 +84,7 @@ of Javascript objects using expressive templates. Designed as an underscore mixi
               }
             },
             failedTemplate2 = {
-        ->    a: _.not(_.isNumber),     // object.a = 3.14... is a number
+        ->    a: _.compose(_.not, _.isNumber),    // object.a = 3.14... is a number and will fail
         ->    bar: {                    // object structure is foo.bar, not bar.foo
         ->      foo: {
                   b: _.isString,

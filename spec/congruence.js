@@ -3,17 +3,15 @@ var _ = require('underscore'),
   moment = require('moment'),
   semver = require('semver');
 
-_.mixin(require('../congruence'));
-
 describe('congruence', function () {
 
   before(function () {
-    _.mixin(require('../congruence'));
+    _.mixin(require('..'));
   });
 
   describe('sanity', function () {
     it('should be require-able', function () {
-      assert.ok(require('../congruence'));
+      assert.ok(require('..'));
     });
     it('should mix into underscore', function () {
       assert.isFunction(_.congruent);
@@ -507,10 +505,8 @@ describe('congruence', function () {
         assert.isTrue(_.congruent(matchingTemplate1, object));
         assert.isTrue(_.congruent(matchingTemplate2, object));
 
-        /*
         assert.isFalse(_.congruent(failedTemplate1, object));
         assert.isFalse(_.congruent(failedTemplate2, object));
-        */
     });
     it('should pass README example 2', function () {
       var template = {
