@@ -1,6 +1,6 @@
 {
   "name": "congruence",
-  "version": "1.4.7",
+  "version": "1.4.8",
   "description": "Validate the structure of Javascript objects using semantic templates. Written as an underscore mixin.",
   "main": "index.js",
   "dependencies": {
