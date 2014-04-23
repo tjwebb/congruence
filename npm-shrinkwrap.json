@@ -1,15 +1,20 @@
 {
   "name": "congruence",
-  "version": "1.4.1",
+  "version": "1.4.7",
   "dependencies": {
-    "underscore": {
-      "version": "1.6.0",
-      "from": "underscore@1.6.x"
+    "fnv-plus": {
+      "version": "1.2.4",
+      "from": "fnv-plus@~1.2.4",
+      "dependencies": {
+        "jsbn": {
+          "version": "0.0.0",
+          "from": "jsbn@~0.0.0"
+        }
+      }
     },
-    "underscore-contrib": {
-      "version": "0.2.2",
-      "from": "underscore-contrib@0.2.2",
-      "resolved": "http://registry.npmjs.org/underscore-contrib/-/underscore-contrib-0.2.2.tgz"
+    "lodash": {
+      "version": "2.4.1",
+      "from": "lodash@~2.4.1"
     }
   }
 }
