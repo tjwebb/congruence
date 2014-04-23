@@ -1,29 +1,20 @@
 (function () {
   'use strict';
 
-  var _ = require('underscore');
+  var _ = require('lodash');
+  var fnv = require('fnv-plus');
 
-  _.mixin(require('underscore-contrib'));
   _.mixin({
 
     /**
-     * Return true iff val is a literal, bona fide Object
-     *
-     * @static
-     * @param {*} - the value to test
+     * Compute a hash of an object's keys.
      */
-    isObjectStrict: function (val) {
-      return _.all([
-        _.isObject(val),
-        _.not(_.isFunction(val)),
-        _.not(_.isArray(val)),
-        _.not(_.isRegExp(val)),
-        _.not(_.isDate(val)),
-        _.not(_.isArguments(val)),
-        _.not(_.isElement(val)),
-        _.not(_.isNumber(val)),
-        _.not(_.isBoolean(val))
-      ]);
+    essentialize: function (val) {
+      return _.isPlainObject(val) ? fnv.hash(JSON.stringify(_.keys(val))).str() : val;
+    },
+
+    not: function (val) {
+      return !val;
     }
   });
 
@@ -47,10 +38,10 @@
     congruent: function(template, object, _errors) {
       var errors = _errors || [ ];
 
-      if (!_.isObjectStrict(object)) {
+      if (!_.isPlainObject(object)) {
         logError(errors, '\'object\' must be a valid js object');
       }
-      if (!_.isObjectStrict(template)) {
+      if (!_.isPlainObject(template)) {
         logError(errors, '\'template\' must be a valid js object');
       }
       return !errors.length && _testSubtree(_.clone(template), object, errors);
@@ -74,20 +65,13 @@
   });
 
   /**
-   * XXX For backward-compatibility; will remove support in 1.5.0.
-   * _.congruent is more API- and namespace-friendly and less vague than _.test.
-   * @deprecated
-   */
-  congruence.test = congruence.congruent;
-
-  /**
    * Recurse into a subtree and test each node against the template.
    * @private
    */
   function _testSubtree (templateNode, objectNode, errors) {
 
     // a leaf is reached
-    if (!_.isObjectStrict(templateNode) || !_.isObjectStrict(objectNode)) {
+    if (!_.isPlainObject(templateNode) || !_.isPlainObject(objectNode)) {
       return _testNode(templateNode, objectNode, errors);
     }
 
@@ -148,7 +132,7 @@
     if (_.isUndefined(predicate)) {
       logError(errors, 'no match for ' + JSON.stringify(value));
     }
-    else if (_.isObjectStrict(predicate) && !_.isObjectStrict(value)) {
+    else if (_.isPlainObject(predicate) && !_.isPlainObject(value)) {
       logError(errors, 'expected (' + value + ') to be an object');
     }
     else if (_.isRegExp(predicate) && !predicate.test(value)) {

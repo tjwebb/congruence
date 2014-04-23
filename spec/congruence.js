@@ -1,15 +1,6 @@
-var _ = require('underscore'),
+var _ = require('lodash'),
   assert = require('chai').assert,
   semver = require('semver');
-
-describe('underscore-contrib compatibility', function () {
-  /** congruence will mix in the contrib functions into _ */
-  before(function () {
-    _.mixin(require('..'));
-    _.mixin(require('underscore-contrib'));
-  });
-
-});
 
 describe('congruence', function () {
 
@@ -41,13 +32,17 @@ describe('congruence', function () {
       assert.isFalse(or1({ }, [ ]));
     });
   });
-  describe('#not()', function () {
-    it('should negate the value of any non-function', function () {
-      assert.isTrue(_.not(false));
-      assert.isFalse(_.not(true));
-      assert.isFalse(_.not({ hello: 'world' }));
-    });
+  describe('#essentialize', function () {
+    it('should return a hash of an object\'s keys', function () {
+      var testObject1 = { a: 1, b: 2 },
+        testObject2 = { a: 1, b: 2, c: 3 };
 
+      assert.equal(_.essentialize(testObject1), 'kg4bd6i0y3');
+      assert.equal(_.essentialize(testObject2), 'f4jv0po6d7');
+    });
+    it('should return the indentity if given a string', function () {
+      assert.equal(_.essentialize('hello'), 'hello');
+    });
   });
   describe('#test()', function () {
     describe('@error[]', function () {
@@ -439,46 +434,32 @@ describe('congruence', function () {
       assert.isTrue(_.congruent(template, object));
     });
   });
-  describe('#isObjectStrict', function () {
+  describe('#isPlainObject', function () {
     it('should validate a bona fide Object', function () {
-      assert.isTrue(_.isObjectStrict({ }));
-      assert.isTrue(_.isObjectStrict({ a: _.isZero }));
-      assert.isTrue(_.isObjectStrict(new Object({ hello: 'world' })));
+      assert.isTrue(_.isPlainObject({ }));
+      assert.isTrue(_.isPlainObject({ a: _.isZero }));
+      assert.isTrue(_.isPlainObject(new Object({ hello: 'world' })));
     });
     it('should invalidate non-objects', function () {
-      assert.isFalse(_.isObjectStrict(5));
-      assert.isFalse(_.isObjectStrict(null));
-      assert.isFalse(_.isObjectStrict(undefined));
-      assert.isFalse(_.isObjectStrict('hello'));
+      assert.isFalse(_.isPlainObject(5));
+      assert.isFalse(_.isPlainObject(null));
+      assert.isFalse(_.isPlainObject(undefined));
+      assert.isFalse(_.isPlainObject('hello'));
     });
     it('should invalidate impure Object types', function () {
-      assert.isFalse(_.isObjectStrict([ ]));
-      assert.isFalse(_.isObjectStrict(arguments));
-      assert.isFalse(_.isObjectStrict(new Date()));
-      assert.isFalse(_.isObjectStrict(String('ohai')));
-      assert.isFalse(_.isObjectStrict(Number(5)));
-      assert.isFalse(_.isObjectStrict(function () { }));
+      assert.isFalse(_.isPlainObject([ ]));
+      assert.isFalse(_.isPlainObject(arguments));
+      assert.isFalse(_.isPlainObject(new Date()));
+      assert.isFalse(_.isPlainObject(String('ohai')));
+      assert.isFalse(_.isPlainObject(Number(5)));
+      assert.isFalse(_.isPlainObject(function () { }));
     });
   });
-  describe('#isValidDate()', function () {
-    it('should correctly validate input against given format list', function () {
-      var date1 = '12/3/2013',
-        date2 = '12/03/2013',
-        date3 = '12/3/13',
-        date4 = '31/31/2013',           // FAIL
-        date5 = new Date().valueOf();   // FAIL
-
-      assert.isTrue(_.isValidDate(new Date(date1)));
-      assert.isTrue(_.isValidDate(new Date(date2)));
-      assert.isTrue(_.isValidDate(new Date(date3)));
-      assert.isTrue(_.isValidDate(new Date(date5)));
-
-      assert.isFalse(_.isValidDate(new Date(date4)));
-    });
+  describe('#isDate()', function () {
     it('should validate date type predicate', function () {
       var template = {
-          date1: _.isValidDate,
-          date2: _.isValidDate
+          date1: _.isDate,
+          date2: _.isDate
         },
         object = {
           date1: new Date('12/03/13'),
