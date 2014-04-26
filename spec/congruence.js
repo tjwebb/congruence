@@ -14,24 +14,12 @@ describe('congruence', function () {
     });
     it('should mix into underscore', function () {
       assert.isFunction(_.congruent);
-      assert.isFunction(_.compose(_.not, _.isUndefined));
+      assert.isFunction(_.similar);
       assert.isFunction(_.isPlainObject);
       assert.isFunction(_.not);
-      assert.isFunction(_.or);
     });
   });
 
-  describe('#or()', function () {
-    it('should return a function that returns the _.any of the given arguments', function () {
-      var or1 = _.or(_.isUndefined, _.isString, _.isFunction);
-      assert.isTrue(or1('hello', [ ]));
-      assert.isTrue(or1(function () { }, [ ]));
-      assert.isTrue(or1(undefined, [ ]));
-
-      assert.isFalse(or1(null, [ ]));
-      assert.isFalse(or1({ }, [ ]));
-    });
-  });
   describe('#essentialize', function () {
     it('should return a hash of an object\'s keys', function () {
       var testObject1 = { a: 1, b: 2 },
@@ -44,185 +32,7 @@ describe('congruence', function () {
       assert.equal(_.essentialize('hello'), 'hello');
     });
   });
-  describe('#test()', function () {
-    describe('@error[]', function () {
-      it('should report an invalid 1st argument', function () {
-        var error = [ ],
-          result = _.congruent(null, { a: 1 }, error);
-
-        assert.equal(error[0], '\'template\' must be a valid js object');
-      });
-      it('should report an invalid 2nd argument', function () {
-        var error = [ ],
-          result = _.congruent({ a: 1 }, null, error);
-
-        assert.equal(error[0], '\'object\' must be a valid js object');
-      });
-      it('should report a value inequality', function () {
-        var error = [ ],
-          result = _.congruent({ a: 1 }, { a: 2 }, error);
-
-        assert.equal(error[0], 'expected (1) to equal 2');
-      });
-      it('should report a predicate fail', function () {
-        var error = [ ],
-          result = _.congruent({ a: _.isString }, { a: 1 }, error);
-
-        assert.equal(error[0], 'isString(1) returned false');
-      });
-      it('should report a nested predicate fail (#or)', function () {
-        var error = [ ],
-          template = {
-            a: 1,
-            foo: _.or(_.isNumber, _.isDate)
-          },
-          object = {
-            a: 1,
-            foo: 'bar'
-          },
-          result = _.congruent(template, object, error);
-
-        assert.include(error, 'isNumber(bar) returned false');
-        assert.include(error, 'isDate(bar) returned false');
-      });
-      it('should report multiple errors', function () {
-        var error = [ ],
-          template = {
-            a: -1,
-            foo: _.isNumber
-          },
-          object = {
-            a: 1,
-            foo: 'bar'
-          },
-          result = _.congruent(template, object, error);
-
-        assert.include(error, 'expected (-1) to equal 1');
-        assert.include(error, 'isNumber(bar) returned false');
-      });
-    });
-    describe('key expressions', function () {
-      it('should treat objects inside or() clause as templates', function () {
-        var template = {
-            attr: _.or(
-              { $eq:    _.compose(_.not, _.isUndefined) },
-              { EQUALS: _.compose(_.not, _.isUndefined) }
-            )
-          },
-          object1 = {   // OK
-            attr: {
-              $eq: 5
-            }
-          },
-          object2 = {   // OK
-            attr: {
-              EQUALS: 5
-            }
-          },
-          object3 = {   // FAIL
-            attr: {
-              foo: 'bar'
-            }
-          };
-
-        assert.isTrue(_.congruent(template, object1));
-        assert.isTrue(_.congruent(template, object2));
-        assert.isFalse(_.congruent(template, object3));
-      });
-      it('should correctly handle 0+ key expression', function () {
-        var template = {
-            '(?)attributes': {
-              '(+)' : _.or(
-                { $eq: _.compose(_.not, _.isUndefined) },
-                { EQUALS: _.compose(_.not, _.isUndefined) },
-                { $lt: _.or(_.isNumber, _.isDate) },
-                { LESS_THAN: _.or(_.isNumber, _.isDate) },
-                { $gt: _.or(_.isNumber, _.isDate) },
-                { GREATER_THAN: _.or(_.isFinite, _.isDate) }
-              )
-            },
-            '(?)orderby': {
-              '(+)': _.or(_.isNumber, /ASC/i, /DESC/i)
-            }
-          },
-          object1 = {   // OK
-            attributes: {
-              'order.number': { $eq: 1234 }
-            }
-          },
-          object2 = {   // OK
-            attributes: {
-              amount: { $lt: 1000000000 },
-              balance: { $gt: 0 }
-            }
-          },
-          object3 = {   // OK
-            attributes: {
-              amount: { $lt: 1000000000 },
-              balance: { GREATER_THAN: 0 }
-            },
-            orderby: {
-              amount: -1,
-              balance: 'asc'
-            }
-          },
-          object4 = {   // FAIL
-            attributes: {
-              amount: { $lt: 1000000000 },
-              balance: { BETTER_THAN: 'you' },
-            },
-            orderby: {
-              amount: -1
-            }
-          },
-          object5 = {   // FAIL
-            attributes: {
-              amount: { $lt: 1000000000 },
-              balance: { GREATHER_THAN: 0 },
-            },
-            orderby: {
-              amount: 'invalid'
-            }
-          };
-
-        assert.isTrue(_.congruent(template, object1));
-        assert.isTrue(_.congruent(template, object2));
-        assert.isTrue(_.congruent(template, object3));
-        assert.isFalse(_.congruent(template, object4));
-        assert.isFalse(_.congruent(template, object5));
-      });
-      it('should correctly handle 1+ key expression with options arrays', function () {
-        var template = {
-            '(?)attributes': {
-              '(+)' : _.or(
-                { $eq: _.compose(_.not, _.isUndefined) },
-                { EQUALS: _.compose(_.not, _.isUndefined) },
-                { $lt: _.or(_.isNumber, _.isDate) },
-                { LESS_THAN: _.or(_.isNumber, _.isDate) }
-              )
-            },
-            '(?)orderby': {
-              '(+)': _.or(_.isNumber, /ASC/i, /DESC/i)
-            }
-          },
-          object1 = {   // OK
-            attributes: {
-              'order.number': { $eq: 1234 }
-            },
-            orderby: {
-              amount: 'ASC'
-            }
-          },
-          object2 = {   // FAIL
-            orderby: {
-              amount: 'ASC'
-            }
-          };
-
-        assert.isTrue(_.congruent(template, object1));
-        assert.isTrue(_.congruent(template, object2));
-      });
-    });
+  describe('_#congruent', function () {
     it('should validate number type predicate', function () {
       var template = {
           a: _.isNumber, 
@@ -307,11 +117,11 @@ describe('congruence', function () {
     it('should validate structure congruence', function () {
       var template1 = {
           a: _.isNumber, 
-          foo: {
-            bar: {
+          foo: _.congruent({
+            bar: _.congruent({
               b: _.isNumber
-            }
-          }
+            })
+          })
         },
         template2 = {
           a: 1,
@@ -332,8 +142,8 @@ describe('congruence', function () {
           }
         };
       assert.isTrue(_.congruent(template1, object));
-      assert.isTrue(_.congruent(template2, object));
-      assert.isTrue(_.congruent(template3, object));
+      //assert.isTrue(_.congruent(template2, object));
+      //assert.isTrue(_.congruent(template3, object));
     });
 
     it('should validate non-strict object predicate', function () {
@@ -423,49 +233,33 @@ describe('congruence', function () {
         };
       assert.isFalse(_.congruent(template, object));
     });
-    it('should validate missing object key but which is allowed undefined by template', function () {
+  });
+  describe('_#similar', function () {
+    it('should validate basic similar template', function () {
       var template = {
-          a: _.isNumber, 
-          b: _.or(_.isUndefined, _.isNumber)
+          id: 57,
+          name: 'Travis'
         },
         object = {
-          a: 1
+          id: 57,
+          name: 'Travis',
+          color: 'blue',
+          foo: 1
         };
-      assert.isTrue(_.congruent(template, object));
+
+      assert.isTrue(_.similar(template, object));
     });
-  });
-  describe('#isPlainObject', function () {
-    it('should validate a bona fide Object', function () {
-      assert.isTrue(_.isPlainObject({ }));
-      assert.isTrue(_.isPlainObject({ a: _.isZero }));
-      assert.isTrue(_.isPlainObject(new Object({ hello: 'world' })));
-    });
-    it('should invalidate non-objects', function () {
-      assert.isFalse(_.isPlainObject(5));
-      assert.isFalse(_.isPlainObject(null));
-      assert.isFalse(_.isPlainObject(undefined));
-      assert.isFalse(_.isPlainObject('hello'));
-    });
-    it('should invalidate impure Object types', function () {
-      assert.isFalse(_.isPlainObject([ ]));
-      assert.isFalse(_.isPlainObject(arguments));
-      assert.isFalse(_.isPlainObject(new Date()));
-      assert.isFalse(_.isPlainObject(String('ohai')));
-      assert.isFalse(_.isPlainObject(Number(5)));
-      assert.isFalse(_.isPlainObject(function () { }));
-    });
-  });
-  describe('#isDate()', function () {
-    it('should validate date type predicate', function () {
+    it('should invalidate basic dissimilar template', function () {
       var template = {
-          date1: _.isDate,
-          date2: _.isDate
+          id: 1,
+          name: 'Travis'
         },
         object = {
-          date1: new Date('12/03/13'),
-          date2: new Date('12/03/2013')
+          name: 'Travis',
+          color: 'blue'
         };
-      assert.isTrue(_.congruent(template, object));
+
+      assert.isFalse(_.similar(template, object));
     });
   });
   describe('@example', function () {
@@ -487,90 +281,35 @@ describe('congruence', function () {
           },
           matchingTemplate2 = {       // matches object
             a: 3.1415926535,
-            foo: {
-              bar: {
+            foo: _.congruent({
+              bar: _.congruent({
                 b: _.isString,
                 c: _.isArray,
                 d: _.compose(_.not, _.isFunction)
-              }
-            }
+              })
+            })
           },
           failedTemplate1 = {
-                                      // this template does not allow the 'a' property
-            foo: {
+            foo: _.congruent({
               bar: _.isObject,
               hello: 'world'          // hello is not a supported property of 'foo'
-            }
+            })
           },
           failedTemplate2 = {
             a: _.compose(_.not, _.isNumber),    // object.a = 3.14... is a number
-            bar: {                              // object structure is foo.bar, not bar.foo
-              foo: {
+            bar: _.congruent({                              // object structure is foo.bar, not bar.foo
+              foo: _.congruent({
                 b: _.isString,
                 c: _.isArray,
                 d: _.isDate
-              }
-            }
+              })
+            })
           };
         assert.isTrue(_.congruent(matchingTemplate1, object));
         assert.isTrue(_.congruent(matchingTemplate2, object));
 
         assert.isFalse(_.congruent(failedTemplate1, object));
         assert.isFalse(_.congruent(failedTemplate2, object));
-    });
-    it('should pass README example 2', function () {
-      var template = {
-          '(?)parameters': {
-            '(+)' : _.or(
-              { $lt: _.or(_.isNumber, _.isDate) },
-              { $gt: _.or(_.isNumber, _.isDate) },
-              { $eq: _.compose(_.not, _.isUndefined) }
-            )
-          },
-          '(?)orderby': {
-            '(+)': _.or(_.isNumber, /ASC/i, /DESC/i)
-          }
-        },
-        matchingObject1 = {
-          parameters: {
-            amount: { $lt: 500 },
-            balance: { $gt: 100 }
-          },
-          orderby: {
-            balance: 'asc'
-          }
-        },
-        matchingObject2 = {
-          parameters: {
-            balance: { $eq: 1000 }
-          }
-        },
-        invalidObject1 = {
-          parameters: {
-            amount: { $lt: 'hello' }
-          },
-          orderby: 'up'
-        },
-        invalidObject2 = {
-          parameters: {
-            amount: { crap: 'nonsense' }
-          }
-        },
-        errors1 = [ ], errors2 = [ ],
-        shouldFail1, shouldFail2; 
-
-      assert.isTrue(_.congruent(template, matchingObject1));
-      assert.isTrue(_.congruent(template, matchingObject2));
-
-      shouldFail1 = _.congruent(template, invalidObject1, errors1);
-      assert.isFalse(shouldFail1);
-      assert.include(errors1, 'isNumber(hello) returned false');
-      assert.include(errors1, 'isDate(hello) returned false');
-      assert.include(errors1, 'expected (up) to be an object');
-
-      shouldFail2 = _.congruent(template, invalidObject2, errors2);
-      assert.isFalse(shouldFail2);
-      assert.include(errors2, 'no match for {"crap":"nonsense"}');
     });
     it('should pass README headline example', function () {
       var template = { module: _.isString,   version: semver.valid };
