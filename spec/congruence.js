@@ -261,6 +261,28 @@ describe('congruence', function () {
 
       assert.isFalse(_.similar(template, object));
     });
+    describe('performance', function () {
+      it('should quickly evaluate n=10000', function () {
+        for (var i = 0; i < 10000; i++) {
+          var rand = Math.random(),
+            template = {
+              id: rand,
+              firstname: 'Travis',
+              lastname: 'Webb',
+            },
+            object = {
+              id: rand,
+              firstname: 'Travis',
+              lastname: 'Webb',
+              color: 'blue',
+              pants: 'none',
+              drink: 'water'
+            };
+
+          assert.isTrue(_.similar(template, object));
+        }
+      });
+    });
   });
   describe('@example', function () {
     it('should pass README example 1', function () {
