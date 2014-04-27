@@ -20,7 +20,7 @@ describe('congruence', function () {
     });
   });
 
-  describe('#essentialize', function () {
+  describe('_#essentialize', function () {
     it('should return a hash of an object\'s keys', function () {
       var testObject1 = { a: 1, b: 2 },
         testObject2 = { a: 1, b: 2, c: 3 };
@@ -335,7 +335,7 @@ describe('congruence', function () {
     });
     it('should pass README headline example', function () {
       var template = { module: _.isString,   version: semver.valid };
-      var object =   { module: 'congruence', version: 'v1.2.9'     };
+      var object =   { module: 'congruence', version: 'v1.5.2'     };
       assert.isTrue(_.congruent(template, object));
     });
   });

@@ -1,5 +1,5 @@
-var _ = require('lodash');
-var fnv = require('fnv-plus');
+var _ = require('lodash'),
+  fnv = require('fnv-plus');
 
 /**
  * The congruence API.
