@@ -5,12 +5,12 @@ congruence
 
 ## 0. Quick four-line code example:
 
-    ```javascript
+    
     _.mixin(require('congruence'));
     var template = { module: _.isString,   version: semver.valid };
-    var object =   { module: 'congruence', version: 'v1.5.2'     };
+    var object =   { module: 'congruence', version: 'v1.5.3'     };
     assert.isTrue(_.congruent(template, object));
-    ```
+    
 
 Above, the object is **congruent** to the template because `object.module` is a
 string, and `semver.valid`[[1]](https://www.npmjs.org/package/semver) returns
@@ -24,32 +24,32 @@ of Javascript objects using expressive templates. Designed as an lodash mixin.
   Use this module to check the congruence of Javascript structures and validity
   of values using semantic templates. Suppose an object:
 
-    ```javascript
+    
     var obj = {
       megahertz: 266,
       message: 'hello world'
     };
-    ```
+    
 
   We use the built-in lodash matching functions to build a template
   (an isometry) that we can validate against. Here is a template that matches
   `obj` above:
 
-    ```javascript
+    
     var matchingTemplate = {
       megahertz: _.isNumber
       message: _.isString
     };
-    ```
+    
 
   But this will not match:
 
-    ```javascript
+    
     var failedTemplate = {
       megahertz: 500,
       foo: _.isFunction
     };
-    ```
+    
 
   Both properties will fail validation. 
   If a non-function is given in the template value, it will be used as a strict
@@ -60,7 +60,7 @@ of Javascript objects using expressive templates. Designed as an lodash mixin.
 
 ### A. Simple Template Congruence
 
-    ```javascript
+    
       var object = {
           a: 3.1415926535,
           foo: {
@@ -83,11 +83,11 @@ of Javascript objects using expressive templates. Designed as an lodash mixin.
         };
 
       assert.isTrue(_.congruent(matchingTemplate, object));
-    ```
+    
 
 ### B. Simple Template Similarity
 
-    ```javascript
+    
       var template = {
           id: 57,
           name: 'Travis'
@@ -101,30 +101,45 @@ of Javascript objects using expressive templates. Designed as an lodash mixin.
 
       // the extra object properties are ignored
       assert.isTrue(_.similar(template, object));
-    ```
+    
 
 ## 3. Full Lodash API
 
-- `_.congruent(template, object, [errors])`
-  - Test the object against the given template
+- `_.congruent(template, object)`
+  - Return true if the object matches all of the conditions in the specified
+    template, and the keysets are identical.
   - General Usage:
 
-          ```javascript
+          
             var template = {
                 <key>: <predicate>
               },
               object = {
                 <key>: <value>
               },
-              errors = [ ]
 
-            _.congruent(template, object, errors);
-          ```
+            _.congruent(template, object);
+
+          
+- `_.congruent(template, object)`
+  - Return true if the object matches all the conditions specified by the
+    template.
+  - General Usage:
+
+          
+            var template = {
+                <key>: <predicate>
+              },
+              object = {
+                <key>: <value>
+              },
+
+            _.congruent(template, object);
 
   - Any lodash `isXYZ` function can be used as a predicate; you can also define
     your own, e.g.
         
-          ```javascript
+          
             var template = {
                 a: function (list) {
                   return _.all(list, function (value) {
@@ -136,7 +151,7 @@ of Javascript objects using expressive templates. Designed as an lodash mixin.
                 a: [ 1, 3, 5 ]
               };
             assert.isTrue(_.congruent(template, object));
-          ```
+          
 
 ## 4. Contribute!
 - File a bug or feature request: https://github.com/tjwebb/congruence/issues

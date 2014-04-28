@@ -262,25 +262,51 @@ describe('congruence', function () {
       assert.isFalse(_.similar(template, object));
     });
     describe('performance', function () {
-      it('should quickly evaluate n=10000', function () {
-        for (var i = 0; i < 10000; i++) {
+      it('should evaluate 100k simple comparisons (n=10e4, levels=1, t < 1s)', function (done) {
+        this.timeout(1000);
+        var template = {
+          id: _.isNumber,
+          firstname: 'Travis',
+          lastname: /We/
+        };
+        for (var i = 0; i < 10e4; i++) {
           var rand = Math.random(),
-            template = {
-              id: rand,
-              firstname: 'Travis',
-              lastname: 'Webb',
-            },
             object = {
               id: rand,
               firstname: 'Travis',
-              lastname: 'Webb',
-              color: 'blue',
-              pants: 'none',
-              drink: 'water'
+              lastname: 'Webb'
             };
 
           assert.isTrue(_.similar(template, object));
         }
+        done();
+      });
+      it('should quickly evaluate 100k nested comparisons (n=10e4, levels=2, t < 2s)', function (done) {
+        this.timeout(5000);
+        var template = {
+          id: _.isNumber,
+          firstname: 'Travis',
+          lastname: /We/,
+          preferences: _.similar({
+            color: _.isString
+          })
+        };
+        for (var i = 0; i < 10e4; i++) {
+          var rand = Math.random(),
+            object = {
+              id: rand,
+              firstname: 'Travis',
+              lastname: 'Webb',
+              preferences: {
+                color: 'blue',
+                pants: 'none',
+                drink: 'water'
+              }
+            };
+
+          assert.isTrue(_.similar(template, object));
+        }
+        done();
       });
     });
   });
@@ -335,7 +361,7 @@ describe('congruence', function () {
     });
     it('should pass README headline example', function () {
       var template = { module: _.isString,   version: semver.valid };
-      var object =   { module: 'congruence', version: 'v1.5.2'     };
+      var object =   { module: 'congruence', version: 'v1.5.3'     };
       assert.isTrue(_.congruent(template, object));
     });
   });
