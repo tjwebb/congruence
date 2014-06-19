@@ -1,32 +1,36 @@
 {
   "name": "congruence",
   "version": "1.5.2",
-  "description": "Validate the structure of Javascript objects using semantic templates. Written as an underscore mixin.",
+  "description": "Validate the structure of Javascript objects using semantic templates. Written as an underscore/lodash mixin.",
   "main": "index.js",
   "dependencies": {
-    "fnv-plus": "~1.2.4",
+    "fnv-plus": "^1.2.0",
     "lodash": "~2.4.1"
   },
   "devDependencies": {
     "mocha": "~1.14.0",
     "chai": "~1.8.1",
-    "jsdoc": "~3.3.0-alpha4",
     "semver": ">=2.0.0"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha -R spec spec/",
-    "jsdoc": "./node_modules/.bin/jsdoc congruence.js spec/"
+    "test": "./node_modules/.bin/mocha -R spec spec/"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/tjwebb/congruence.git"
   },
   "keywords": [
-    "object validation",
-    "object template",
+    "object",
+    "validation",
+    "comparison",
     "congruence",
+    "underscore",
+    "lodash",
     "json-schema"
   ],
+  "engines": {
+    "node": ">= 0.10.26"
+  },
   "author": "Travis Webb",
   "license": "MIT",
   "readmeFilename": "README.md",
