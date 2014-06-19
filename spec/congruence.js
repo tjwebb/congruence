@@ -25,8 +25,8 @@ describe('congruence', function () {
       var testObject1 = { a: 1, b: 2 },
         testObject2 = { a: 1, b: 2, c: 3 };
 
-      assert.equal(_.essentialize(testObject1), 'kg4bd6i0y3');
-      assert.equal(_.essentialize(testObject2), 'f4jv0po6d7');
+      assert.equal(_.essentialize(testObject1), 'wv457gnfxp');
+      assert.equal(_.essentialize(testObject2), 'rjjp0f0dnp');
     });
     it('should return the indentity if given a string', function () {
       assert.equal(_.essentialize('hello'), 'hello');
