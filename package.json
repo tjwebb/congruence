@@ -9,11 +9,10 @@
   },
   "devDependencies": {
     "mocha": "~1.14.0",
-    "chai": "~1.8.1",
     "semver": ">=2.0.0"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha -R spec spec/"
+    "test": "mocha --reporter spec"
   },
   "repository": {
     "type": "git",
