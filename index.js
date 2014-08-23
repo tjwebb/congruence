@@ -27,12 +27,19 @@ function validateArguments (template, object, method) {
  *
  * @private
  */
-function visitNode (templateNode, objectNode) {
-  return _.any([
+function visitNode (templateNode, objectNode, key) {
+  var valid = _.any([
     _.isFunction(templateNode) && templateNode(objectNode),
     _.isRegExp(templateNode) && templateNode.test(objectNode),
     templateNode === objectNode
   ]);
+  if (!valid && this.emitter) this.emitter.emit('invalid:value', {
+    key: key,
+    templateNode: templateNode,
+    objectNode: objectNode
+  });
+
+  return valid;
 }
 
 /**
@@ -41,9 +48,10 @@ function visitNode (templateNode, objectNode) {
  * @static
  * @param template {Object} - the congruence template to test the object against
  * @param object   {Object} - the object to test
+ * @param emitter  {EventEmitter} - an event emitter
  * @returns true if congruent, false otherwise
  */
-Congruence.congruent = function congruent (template, object) {
+Congruence.congruent = function congruent (template, object, emitter) {
   var valid = validateArguments(template, object);
   if (valid) return valid;
 
@@ -51,12 +59,15 @@ Congruence.congruent = function congruent (template, object) {
     objectKeys = _.keys(object);
 
   if (_.intersection(objectKeys, templateKeys).length !== objectKeys.length) {
-    
+    if (emitter) emitter.emit('invalid:keys', {
+      objectKeys: objectKeys,
+      templateKeys: templateKeys
+    });
     return false;
   }
 
   return _.all(templateKeys, function (key) {
-    return visitNode(template[key], object[key]);
+    return _.bind(visitNode, { emitter: emitter })(template[key], object[key], key);
   });
 };
 
@@ -68,12 +79,12 @@ Congruence.congruent = function congruent (template, object) {
  * @param object   {Object} - the object to test
  * @returns true if similar, false otherwise
  */
-Congruence.similar = function (template, object) {
+Congruence.similar = function (template, object, emitter) {
   var valid = validateArguments(template, object);
   if (valid) return valid;
 
   return _.all(_.keys(template), function (key) {
-    return visitNode(template[key], object[key]);
+    return _.bind(visitNode, { emitter: emitter })(template[key], object[key], key);
   });
 };
 

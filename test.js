@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var assert = require('assert');
 var semver = require('semver');
+var EventEmitter = require('events').EventEmitter;
 
 describe('congruence', function () {
 
@@ -129,9 +130,9 @@ describe('congruence', function () {
         },
         template3 = {
           a: 1,
-          foo: {
+          foo: _.congruent({
             bar: _.isObject
-          }
+          })
         },
         object = {
           a: 1,
@@ -142,8 +143,8 @@ describe('congruence', function () {
           }
         };
       assert(_.congruent(template1, object));
-      //assert.isTrue(_.congruent(template2, object));
-      //assert.isTrue(_.congruent(template3, object));
+      assert(_.congruent(template2, object));
+      assert(_.congruent(template3, object));
     });
 
     it('should validate non-strict object predicate', function () {
@@ -232,6 +233,36 @@ describe('congruence', function () {
           }
         };
       assert(!_.congruent(template, object));
+    });
+    it('should fire invalid:keys event on keys mismatch', function (done) {
+      var template = {
+        a: 1,
+        foo: 'bar'
+      };
+      var object = {
+        b: 2
+      };
+      var emitter = new EventEmitter();
+      emitter.on('invalid:keys', function (error) {
+        assert(_.isObject(error));
+        done();
+      });
+      assert(!_.congruent(template, object, emitter));
+    });
+    it('should fire invalid:value event on predicate failure', function (done) {
+      var template = {
+        a: 2
+      };
+      var object = {
+        a: 1
+      };
+      var emitter = new EventEmitter();
+      emitter.on('invalid:value', function (error) {
+        assert(error.key === 'a');
+        assert(_.isObject(error));
+        done();
+      });
+      assert(!_.congruent(template, object, emitter));
     });
   });
   describe('_#similar', function () {
