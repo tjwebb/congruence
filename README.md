@@ -162,7 +162,6 @@ Return true if the object matches all the conditions specified by the template.
 | object | the object to validate
 | **@return** | **description**
 | Boolean | true if the object is congruent to the template, false otherwise
-- General Usage:
 
 ```js
 var template = {
