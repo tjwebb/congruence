@@ -4,8 +4,8 @@
   "description": "Validate the structure of Javascript objects using semantic templates. Written as an underscore/lodash mixin.",
   "main": "index.js",
   "dependencies": {
-    "fnv-plus": "^1.2.0",
-    "lodash": "~2.4.1"
+    "fnv-plus": "^1.2.9",
+    "lodash": "^2.4.1"
   },
   "devDependencies": {
     "mocha": "~1.14.0",
@@ -24,12 +24,14 @@
     "validation",
     "comparison",
     "congruence",
+    "similarity",
+    "diff",
     "underscore",
     "lodash",
     "json-schema"
   ],
   "engines": {
-    "node": ">= 0.10.26"
+    "node": "^0.8.0"
   },
   "author": "Travis Webb",
   "license": "MIT",

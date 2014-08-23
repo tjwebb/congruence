@@ -1,16 +1,26 @@
 congruence
 ==========
 
-[![Build Status](https://travis-ci.org/tjwebb/congruence.png?branch=master)](https://travis-ci.org/tjwebb/congruence)
+[![NPM version][npm-image]][npm-url]
+[![Build status][travis-image]][travis-url]
+[![Dependency Status][daviddm-image]][daviddm-url]
 
-## 0. Quick four-line code example:
+Validate Javascript objects using semantic templates. Written as an underscore/lodash mixin.
 
-    
-    _.mixin(require('congruence'));
-    var template = { module: _.isString,   version: semver.valid };
-    var object =   { module: 'congruence', version: 'v1.5.3'     };
-    assert.isTrue(_.congruent(template, object));
-    
+## Install
+
+```sh
+$ npm install congruence --save
+```
+
+## Introduction
+
+```js
+_.mixin(require('congruence'));
+var template = { module: _.isString,   version: semver.valid };
+var object =   { module: 'abc', version: 'v1.0.0'     };
+assert.isTrue(_.congruent(template, object));
+```
 
 Above, the object is **congruent** to the template because `object.module` is a
 string, and `semver.valid`[[1]](https://www.npmjs.org/package/semver) returns
@@ -19,140 +29,156 @@ true for `object.version`.
 It's like regular expressions for Javascript objects. Easily test the structure
 of Javascript objects using expressive templates. Designed as an lodash mixin.
 
-## 1. Concept
+## Usage
 
-  Use this module to check the congruence of Javascript structures and validity
-  of values using semantic templates. Suppose an object:
+Use this module to check the congruence of Javascript structures and validity
+of values using semantic templates. Suppose an object:
 
-    
-    var obj = {
-      megahertz: 266,
-      message: 'hello world'
-    };
-    
+```js
+var obj = {
+  megahertz: 266,
+  message: 'hello world'
+};
+```
 
-  We use the built-in lodash matching functions to build a template
-  (an isometry) that we can validate against. Here is a template that matches
-  `obj` above:
+We use the built-in lodash matching functions to build a template
+(an isometry) that we can validate against. Here is a template that matches
+`obj` above:
 
-    
-    var matchingTemplate = {
-      megahertz: _.isNumber
-      message: _.isString
-    };
-    
+```js
+var matchingTemplate = {
+  megahertz: _.isNumber
+  message: _.isString
+};
+```
 
-  But this will not match:
+But this will not match:
+  
+```js
+var failedTemplate = {
+  megahertz: 500,
+  foo: _.isFunction
+};
+```
 
-    
-    var failedTemplate = {
-      megahertz: 500,
-      foo: _.isFunction
-    };
-    
+Both properties will fail validation. 
+If a non-function is given in the template value, it will be used as a strict
+equality check. `megahertz` is not equal to `500` so that fails. And the
+template requires `foo` to be a function, but `obj.foo` is not even defined.
 
-  Both properties will fail validation. 
-  If a non-function is given in the template value, it will be used as a strict
-  equality check. `megahertz` is not equal to `500` so that fails. And the
-  template requires `foo` to be a function, but `obj.foo` is not even defined.
 
-## 2. Examples
+Any lodash `isXYZ` function can be used as a predicate; you can also define your own, e.g.
+        
+```js
+var template = {
+  a: function (list) {
+    return _.all(list, function (value) {
+      return (value % 2) > 0;
+    });
+  }
+},
+object = {
+  a: [ 1, 3, 5 ]
+};
+assert.isTrue(_.congruent(template, object));
+```
+
+## Examples
 
 ### A. Simple Template Congruence
+  
+```js
+var object = {
+  a: 3.1415926535,
+  foo: {
+    bar: {
+      b: 'hello world',
+      c: [ 1, 1, 2, 3, 5, 8 ],
+      d: new Date()
+    }
+  }
+};
+var matchingTemplate = {
+  a: 3.1415926535,
+  foo: _.congruent({
+    bar: _.congruent({
+      b: _.isString,
+      c: _.isArray,
+      d: _.compose(_.not, _.isFunction)
+    })
+  })
+};
 
-    
-      var object = {
-          a: 3.1415926535,
-          foo: {
-            bar: {
-              b: 'hello world',
-              c: [ 1, 1, 2, 3, 5, 8 ],
-              d: new Date()
-            }
-          }
-        },
-        matchingTemplate = {
-          a: 3.1415926535,
-          foo: _.congruent({
-            bar: _.congruent({
-              b: _.isString,
-              c: _.isArray,
-              d: _.compose(_.not, _.isFunction)
-            })
-          })
-        };
-
-      assert.isTrue(_.congruent(matchingTemplate, object));
-    
+assert.isTrue(_.congruent(matchingTemplate, object));
+```
 
 ### B. Simple Template Similarity
 
-    
-      var template = {
-          id: 57,
-          name: 'Travis'
-        },
-        object = {
-          id: 57,
-          name: 'Travis',
-          color: 'blue',
-          foo: 1
-        };
+```js
+var template = {
+  id: 57,
+  name: 'Travis'
+};
+var object = {
+  id: 57,
+  name: 'Travis',
+  color: 'blue',
+  foo: 1
+};
 
-      // the extra object properties are ignored
-      assert.isTrue(_.similar(template, object));
-    
+// the extra object properties are ignored
+assert.isTrue(_.similar(template, object));
+```
 
 ## 3. Full Lodash API
 
-- `_.congruent(template, object)`
-  - Return true if the object matches all of the conditions in the specified
-    template, and the keysets are identical.
-  - General Usage:
+#### `_.congruent(template, object)`
+Return true if the object matches all of the conditions in the specified template, and the keysets are identical.
 
-          
-            var template = {
-                <key>: <predicate>
-              },
-              object = {
-                <key>: <value>
-              },
+| @param | description
+|:--|:--|
+| template | the congruence template used to validate the object
+| object | the object to validate
+| **@return** | **description**
+| Boolean | true if the object is congruent to the template, false otherwise
 
-            _.congruent(template, object);
+```js
+var template = {
+  <key>: <predicate>
+};
+var object = {
+  <key>: <value>
+};
 
-          
-- `_.congruent(template, object)`
-  - Return true if the object matches all the conditions specified by the
-    template.
-  - General Usage:
-
-          
-            var template = {
-                <key>: <predicate>
-              },
-              object = {
-                <key>: <value>
-              },
-
-            _.congruent(template, object);
-
-  - Any lodash `isXYZ` function can be used as a predicate; you can also define
-    your own, e.g.
+_.congruent(template, object);
+```
         
-          
-            var template = {
-                a: function (list) {
-                  return _.all(list, function (value) {
-                    return (value % 2) > 0;
-                  });
-                }
-              },
-              object = {
-                a: [ 1, 3, 5 ]
-              };
-            assert.isTrue(_.congruent(template, object));
-          
+#### `_.similar(template, object)`
+Return true if the object matches all the conditions specified by the template.
 
-## 4. Contribute!
-- File a bug or feature request: https://github.com/tjwebb/congruence/issues
-- I `<3` pull requests
+| @param | description
+|:--|:--|
+| template | the congruence template used to validate the object
+| object | the object to validate
+| **@return** | **description**
+| Boolean | true if the object is congruent to the template, false otherwise
+- General Usage:
+
+```js
+var template = {
+  <key>: <predicate>
+};
+var object = {
+  <key>: <value>
+};
+```
+
+## License
+MIT
+
+[npm-image]: https://img.shields.io/npm/v/congruence.svg?style=flat
+[npm-url]: https://npmjs.org/package/congruence
+[travis-image]: https://img.shields.io/travis/tjwebb/congruence.svg?style=flat
+[travis-url]: https://travis-ci.org/tjwebb/congruence
+[daviddm-image]: http://img.shields.io/david/tjwebb/congruence.svg?style=flat
+[daviddm-url]: https://david-dm.org/tjwebb/congruence
