@@ -5,12 +5,12 @@ var semver = require('semver');
 describe('congruence', function () {
 
   before(function () {
-    _.mixin(require('..'));
+    _.mixin(require('.'));
   });
 
   describe('sanity', function () {
     it('should be require-able', function () {
-      assert(require('..'));
+      assert(require('.'));
     });
     it('should mix into underscore', function () {
       assert(_.isFunction(_.congruent));
