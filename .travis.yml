@@ -1,5 +1,14 @@
 language: node_js
 node_js:
-  - "0.8"
-  - "0.10"
-  - "0.11"
+- '0.8'
+- '0.10'
+- '0.11'
+deploy:
+  provider: npm
+  email: me@traviswebb.com
+  api_key:
+    secure: e0G6j2I6w0P2hNXrJ39+rUhykDqO1ZfOZa98gTb9EddADIAODjbyKo0xvXo6Ctl+tWEXT+1usFO3jgCHjNpyP2Hm+YREZKT35C2K4FHqXKmzl+oxCrSMNv7Y3SkKSn8F3J6JcklF2AHy8HpTUkwsdZestxp7LSouIAzrwj5jvrU=
+  on:
+    tags: true
+    repo: tjwebb/congruence
+    all_branches: true
