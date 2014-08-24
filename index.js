@@ -97,5 +97,4 @@ Congruence.not = function (val) {
   return !val;
 };
 
-Congruence.Emitter = Object.create(require('events').EventEmitter.prototype);
 module.exports = Congruence;
