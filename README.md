@@ -1,8 +1,8 @@
 congruence
 ==========
 
-![License][npm-license]
 [![NPM version][npm-image]][npm-url]
+![License][npm-license]
 [![Build status][travis-image]][travis-url]
 [![Dependency Status][daviddm-image]][daviddm-url]
 
