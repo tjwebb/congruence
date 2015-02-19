@@ -4,6 +4,7 @@ congruence
 [![NPM version][npm-image]][npm-url]
 [![Build status][travis-image]][travis-url]
 [![Dependency Status][daviddm-image]][daviddm-url]
+[![License][npm-licence]]
 
 Validate Javascript objects using semantic templates. Written as an underscore/lodash mixin.
 
@@ -177,6 +178,7 @@ MIT
 
 [npm-image]: https://img.shields.io/npm/v/congruence.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/congruence
+[npm-license]: https://img.shields.io/npm/l/congruence.svg?style=flat-square
 [travis-image]: https://img.shields.io/travis/tjwebb/congruence.svg?style=flat-square
 [travis-url]: https://travis-ci.org/tjwebb/congruence
 [daviddm-image]: http://img.shields.io/david/tjwebb/congruence.svg?style=flat-square
