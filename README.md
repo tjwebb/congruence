@@ -175,9 +175,9 @@ var object = {
 ## License
 MIT
 
-[npm-image]: https://img.shields.io/npm/v/congruence.svg?style=flat
+[npm-image]: https://img.shields.io/npm/v/congruence.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/congruence
-[travis-image]: https://img.shields.io/travis/tjwebb/congruence.svg?style=flat
+[travis-image]: https://img.shields.io/travis/tjwebb/congruence.svg?style=flat-square
 [travis-url]: https://travis-ci.org/tjwebb/congruence
-[daviddm-image]: http://img.shields.io/david/tjwebb/congruence.svg?style=flat
+[daviddm-image]: http://img.shields.io/david/tjwebb/congruence.svg?style=flat-square
 [daviddm-url]: https://david-dm.org/tjwebb/congruence
