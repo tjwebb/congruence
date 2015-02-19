@@ -4,7 +4,7 @@ congruence
 [![NPM version][npm-image]][npm-url]
 [![Build status][travis-image]][travis-url]
 [![Dependency Status][daviddm-image]][daviddm-url]
-[![License][npm-licence]]
+[![License][npm-licence]][]
 
 Validate Javascript objects using semantic templates. Written as an underscore/lodash mixin.
 
