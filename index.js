@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var fnv = require('fnv-plus');
+var EventEmitter = require('events').EventEmitter;
 
 /**
  * The congruence API.
@@ -33,7 +34,7 @@ function visitNode (templateNode, objectNode, key) {
     _.isRegExp(templateNode) && templateNode.test(objectNode),
     templateNode === objectNode
   ]);
-  if (!valid && this.emitter) this.emitter.emit('invalid:value', {
+  if (!valid && this.emitter instanceof EventEmitter) this.emitter.emit('invalid:value', {
     key: key,
     templateNode: templateNode,
     objectNode: objectNode
@@ -80,6 +81,9 @@ Congruence.congruent = function congruent (template, object, emitter) {
  * @returns true if similar, false otherwise
  */
 Congruence.similar = function (template, object, emitter) {
+  console.log('template', template);
+  console.log('object', object);
+  //console.log('emitter', emitter);
   var valid = validateArguments(template, object);
   if (valid) return valid;
 
