@@ -81,9 +81,6 @@ Congruence.congruent = function congruent (template, object, emitter) {
  * @returns true if similar, false otherwise
  */
 Congruence.similar = function (template, object, emitter) {
-  console.log('template', template);
-  console.log('object', object);
-  //console.log('emitter', emitter);
   var valid = validateArguments(template, object);
   if (valid) return valid;
 

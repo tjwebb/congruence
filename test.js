@@ -293,8 +293,8 @@ describe('congruence', function () {
       assert(!_.similar(template, object));
     });
     describe('performance', function () {
-      it('should evaluate 100k simple comparisons (n=10e4, levels=1, t < 1s)', function (done) {
-        this.timeout(1000);
+      it('should evaluate 100k simple comparisons (n=10e4, levels=1, t < 2s)', function () {
+        this.timeout(2000);
         var template = {
           id: _.isNumber,
           firstname: 'Travis',
@@ -310,9 +310,8 @@ describe('congruence', function () {
 
           assert(_.similar(template, object));
         }
-        done();
       });
-      it('should quickly evaluate 100k nested comparisons (n=10e4, levels=2, t < 2s)', function (done) {
+      it('should quickly evaluate 100k nested comparisons (n=10e4, levels=2, t < 5s)', function () {
         this.timeout(5000);
         var template = {
           id: _.isNumber,
@@ -337,7 +336,6 @@ describe('congruence', function () {
 
           assert(_.similar(template, object));
         }
-        done();
       });
     });
   });
@@ -392,8 +390,39 @@ describe('congruence', function () {
     });
     it('should pass README headline example', function () {
       var template = { module: _.isString,   version: semver.valid };
-      var object =   { module: 'congruence', version: 'v1.5.3'     };
+      var object =   { module: 'congruence', version: 'v1.6.8'     };
       assert(_.congruent(template, object));
+    });
+    it('should validate objects with keys a AND/OR b', function () {
+      var templates = [
+        { a: _.isString },
+        { b: _.isString }
+      ];
+      assert(
+        _.any(templates, function (template) {
+          return _.similar(template, { a: 'hello' });
+        })
+      );
+      assert(
+        _.any(templates, function (template) {
+          return _.similar(template, { b: 'world' });
+        })
+      );
+      assert(
+        _.any(templates, function (template) {
+          return _.similar(template, {
+            a: 'hello',
+            b: 'world'
+          });
+        })
+      );
+      assert(
+        !_.any(templates, function (template) {
+          return _.similar(template, {
+            c: 'lala'
+          });
+        })
+      );
     });
   });
 });
