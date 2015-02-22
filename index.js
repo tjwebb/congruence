@@ -13,13 +13,15 @@ var Congruence = function () { };
  *
  * @private
  */
-function validateArguments (template, object, method) {
+function curryArguments (template, object, emitter, method) {
   if (!_.isPlainObject(template)) {
     throw new TypeError('template must be a valid js object');
   }
-  else if (!_.isPlainObject(object)) {
-    return _.curry(Congruence.similar)(template);
+  if (!_.isPlainObject(object)) {
+    return _.curry(Congruence[method])(template, _, emitter);
   }
+
+  return false;
 }
 
 /**
@@ -53,8 +55,8 @@ function visitNode (templateNode, objectNode, key) {
  * @returns true if congruent, false otherwise
  */
 Congruence.congruent = function congruent (template, object, emitter) {
-  var valid = validateArguments(template, object);
-  if (valid) return valid;
+  var curried = curryArguments(template, object, emitter, 'congruent');
+  if (curried) return curried;
 
   var templateKeys = _.keys(template),
     objectKeys = _.keys(object);
@@ -81,8 +83,8 @@ Congruence.congruent = function congruent (template, object, emitter) {
  * @returns true if similar, false otherwise
  */
 Congruence.similar = function (template, object, emitter) {
-  var valid = validateArguments(template, object);
-  if (valid) return valid;
+  var curried = curryArguments(template, object, emitter, 'similar');
+  if (curried) return curried;
 
   return _.all(_.keys(template), function (key) {
     return _.bind(visitNode, { emitter: emitter })(template[key], object[key], key);

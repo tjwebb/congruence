@@ -99,6 +99,59 @@ describe('congruence', function () {
         };
       assert(_.congruent(template, object));
     });
+    it('should invalidate value inequality', function () {
+      var template = {
+          a: _.isNumber, 
+          b: 2.718
+        },
+        object = {
+          a: 1,
+          b: 999
+        };
+      assert(!_.congruent(template, object));
+    });
+    it('should validate nested value equality', function () {
+      var template = {
+          level: _.congruent({
+            a: _.isNumber, 
+            b: 2.718
+          })
+        },
+        object = {
+          level: {
+            a: 1,
+            b: 2.718
+          }
+        };
+      assert(_.congruent(template, object));
+    });
+    it('should curry arguments', function () {
+      var template = _.congruent({
+        a: _.isNumber, 
+        b: 2.718
+      });
+      var object = {
+        a: 1,
+        b: 999
+      };
+      var congruent = template(object);
+      assert(!congruent);
+    });
+    it('should invalidate nested value inequality', function () {
+      var template = {
+          level: _.congruent({
+            a: _.isNumber, 
+            b: 2.718
+          })
+        },
+        object = {
+          level: {
+            a: 1,
+            b: 999
+          }
+        };
+      assert(!_.congruent(template, object));
+    });
     it('should validate wildcard predicate for all values except undefined', function () {
       var template = {
         a: _.compose(_.not, _.isUndefined)
