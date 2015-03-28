@@ -8,7 +8,7 @@
     "lodash": "^3.2"
   },
   "devDependencies": {
-    "mocha": "~1.14.0",
+    "mocha": "^2.2.0",
     "semver": ">=2.0.0"
   },
   "scripts": {
@@ -29,9 +29,6 @@
     "lodash",
     "json-schema"
   ],
-  "engines": {
-    "node": "^0.10.0"
-  },
   "author": "Travis Webb",
   "license": "MIT",
   "readmeFilename": "README.md",
