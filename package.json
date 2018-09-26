@@ -1,14 +1,14 @@
 {
-  "name": "congruence",
-  "version": "1.6.11",
-  "description": "Validate the structure of Javascript objects using semantic templates. Written as an underscore/lodash mixin.",
+  "name": "@iansltx/congruence",
+  "version": "1.6.12",
+  "description": "Validate the structure of Javascript objects using semantic templates. Written as a lodash mixin. Forked from tjwebb/congruence to use non-insecure dependencies.",
   "main": "index.js",
   "dependencies": {
     "fnv-plus": "^1.2.9",
-    "lodash": "^3.2"
+    "lodash": "^4.17.11"
   },
   "devDependencies": {
-    "mocha": "^2.2.0",
+    "mocha": "^5.2.0",
     "semver": ">=2.0.0"
   },
   "scripts": {
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tjwebb/congruence.git"
+    "url": "https://github.com/iansltx/congruence.git"
   },
   "keywords": [
     "object",
@@ -29,10 +29,10 @@
     "lodash",
     "json-schema"
   ],
-  "author": "Travis Webb",
+  "author": "Ian Littman",
   "license": "MIT",
   "readmeFilename": "README.md",
   "bugs": {
-    "url": "https://github.com/tjwebb/congruence/issues"
+    "url": "https://github.com/iansltx/congruence/issues"
   }
 }
