@@ -36,7 +36,7 @@ describe('congruence', function () {
   describe('_#congruent', function () {
     it('should validate number type predicate', function () {
       var template = {
-          a: _.isNumber, 
+          a: _.isNumber,
           b: _.isNumber
         },
         object = {
@@ -78,7 +78,7 @@ describe('congruence', function () {
     it('should validate custom list predicate', function () {
       var template = {
           a: function (a) {
-            return _.all(a, function (value) {
+            return _.every(a, function (value) {
               return (value % 2) > 0;
             });
           }
@@ -90,7 +90,7 @@ describe('congruence', function () {
     });
     it('should validate value equality', function () {
       var template = {
-          a: _.isNumber, 
+          a: _.isNumber,
           b: 2.718
         },
         object = {
@@ -101,7 +101,7 @@ describe('congruence', function () {
     });
     it('should invalidate value inequality', function () {
       var template = {
-          a: _.isNumber, 
+          a: _.isNumber,
           b: 2.718
         },
         object = {
@@ -113,7 +113,7 @@ describe('congruence', function () {
     it('should validate nested value equality', function () {
       var template = {
           level: _.congruent({
-            a: _.isNumber, 
+            a: _.isNumber,
             b: 2.718
           })
         },
@@ -127,7 +127,7 @@ describe('congruence', function () {
     });
     it('should curry arguments', function () {
       var template = _.congruent({
-        a: _.isNumber, 
+        a: _.isNumber,
         b: 2.718
       });
       var object = {
@@ -140,7 +140,7 @@ describe('congruence', function () {
     it('should invalidate nested value inequality', function () {
       var template = {
           level: _.congruent({
-            a: _.isNumber, 
+            a: _.isNumber,
             b: 2.718
           })
         },
@@ -154,7 +154,7 @@ describe('congruence', function () {
     });
     it('should validate wildcard predicate for all values except undefined', function () {
       var template = {
-        a: _.compose(_.not, _.isUndefined)
+        a: _.flowRight(_.not, _.isUndefined)
       };
 
       assert(_.congruent(template, { a: 'hello world' }));
@@ -170,7 +170,7 @@ describe('congruence', function () {
     });
     it('should validate structure congruence', function () {
       var template1 = {
-          a: _.isNumber, 
+          a: _.isNumber,
           foo: _.congruent({
             bar: _.congruent({
               b: _.isNumber
@@ -227,7 +227,7 @@ describe('congruence', function () {
     });
     it('should invalidate structure incongruence', function () {
       var template = {
-          a: _.isNumber, 
+          a: _.isNumber,
           bar: {
             foo: {
               b: _.isNumber
@@ -270,7 +270,7 @@ describe('congruence', function () {
     });
     it('should invalidate nested falsy predicate', function () {
       var template = {
-          a: _.isNumber, 
+          a: _.isNumber,
           bar: {
             foo: {
               b: _.isArray
@@ -406,7 +406,7 @@ describe('congruence', function () {
             }
           },
           matchingTemplate1 = {       // matches object
-            a: _.isNumber, 
+            a: _.isNumber,
             foo: _.isObject           // don't worry about foo's internal structure
           },
           matchingTemplate2 = {       // matches object
@@ -415,7 +415,7 @@ describe('congruence', function () {
               bar: _.congruent({
                 b: _.isString,
                 c: _.isArray,
-                d: _.compose(_.not, _.isFunction)
+                d: _.flowRight(_.not, _.isFunction)
               })
             })
           },
@@ -426,7 +426,7 @@ describe('congruence', function () {
             })
           },
           failedTemplate2 = {
-            a: _.compose(_.not, _.isNumber),    // object.a = 3.14... is a number
+            a: _.flowRight(_.not, _.isNumber),    // object.a = 3.14... is a number
             bar: _.congruent({                              // object structure is foo.bar, not bar.foo
               foo: _.congruent({
                 b: _.isString,
@@ -452,17 +452,17 @@ describe('congruence', function () {
         { b: _.isString }
       ];
       assert(
-        _.any(templates, function (template) {
+        _.some(templates, function (template) {
           return _.similar(template, { a: 'hello' });
         })
       );
       assert(
-        _.any(templates, function (template) {
+        _.some(templates, function (template) {
           return _.similar(template, { b: 'world' });
         })
       );
       assert(
-        _.any(templates, function (template) {
+        _.some(templates, function (template) {
           return _.similar(template, {
             a: 'hello',
             b: 'world'
@@ -470,7 +470,7 @@ describe('congruence', function () {
         })
       );
       assert(
-        !_.any(templates, function (template) {
+        !_.some(templates, function (template) {
           return _.similar(template, {
             c: 'lala'
           });

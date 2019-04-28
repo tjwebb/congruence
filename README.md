@@ -6,7 +6,7 @@ congruence
 [![Build status][travis-image]][travis-url]
 [![Dependency Status][daviddm-image]][daviddm-url]
 
-Validate Javascript objects using semantic templates. Written as an underscore/lodash mixin.
+Validate Javascript objects using semantic templates. Written as a lodash 4+ mixin.
 
 ## Install
 

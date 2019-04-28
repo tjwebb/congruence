@@ -31,7 +31,7 @@ function curryArguments (template, object, emitter, method) {
  * @private
  */
 function visitNode (templateNode, objectNode, key) {
-  var valid = _.any([
+  var valid = _.some([
     _.isFunction(templateNode) && templateNode(objectNode),
     _.isRegExp(templateNode) && templateNode.test(objectNode),
     templateNode === objectNode
@@ -69,7 +69,7 @@ Congruence.congruent = function congruent (template, object, emitter) {
     return false;
   }
 
-  return _.all(templateKeys, function (key) {
+  return _.every(templateKeys, function (key) {
     return _.bind(visitNode, { emitter: emitter })(template[key], object[key], key);
   });
 };
@@ -86,7 +86,7 @@ Congruence.similar = function (template, object, emitter) {
   var curried = curryArguments(template, object, emitter, 'similar');
   if (curried) return curried;
 
-  return _.all(_.keys(template), function (key) {
+  return _.every(_.keys(template), function (key) {
     return _.bind(visitNode, { emitter: emitter })(template[key], object[key], key);
   });
 };
